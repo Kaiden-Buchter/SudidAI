@@ -82,6 +82,9 @@ body, #app {
 .menu-item:hover {
   background-color: #3c3f4a;
 }
+.clickable {
+  cursor: pointer;
+}
 
 /* Search Input Styling */
 .search-input {

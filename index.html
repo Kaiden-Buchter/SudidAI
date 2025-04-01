@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://chatgpt-worker.knbuchtyy879.workers.dev; object-src 'none'; upgrade-insecure-requests;">
   <title>SudidAI</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -25,7 +26,7 @@
       </div>
       <ul id="chat-list" aria-label="Chat List"></ul>
       <footer id="sidebar-footer">
-        <p id="settings-link" style="cursor: pointer;" aria-label="Open Settings">Settings</p>
+        <p id="settings-link" class="clickable" aria-label="Open Settings">Settings</p>
       </footer>
     </nav>
 
@@ -62,6 +63,6 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-  <script type="module" src="main.js"></script>  
+  <script type="module" src="scripts/main.js"></script>  
 </body>
 </html>

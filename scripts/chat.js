@@ -49,7 +49,18 @@ export const addMessage = (role, content, skipHistory = false, messageId = null)
     classList: ['message-wrapper'], 
     dataset: { messageId } 
   });
-  messageWrapper.innerHTML = `<div class="message ${role}">${role === 'bot' ? marked.parse(content) : content}</div>`;
+
+  // Escape HTML content to prevent rendering of HTML tags
+  const escapeHTML = (str) => str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+  const escapedContent = role === 'bot' ? marked.parse(content) : escapeHTML(content);
+
+  messageWrapper.innerHTML = `<div class="message ${role}">${escapedContent}</div>`;
 
   addCopyButtons(messageWrapper);
 
