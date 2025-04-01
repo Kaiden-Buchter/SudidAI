@@ -1,5 +1,29 @@
-export const chatHistories = JSON.parse(localStorage.getItem('chatHistories')) || {};
+// Constants
+const LOCAL_STORAGE_KEY = 'chatHistories';
+const ACTIVE_CHAT_KEY = 'activeChatId';
+
+// State
+export const chatHistories = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || {};
 export let activeChatId = null;
+
+// Utility Functions
+const saveToLocalStorage = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+const createElement = (tag, options = {}) => {
+  const element = document.createElement(tag);
+  Object.entries(options).forEach(([key, value]) => {
+    if (key === 'classList') element.classList.add(...value);
+    else if (key === 'dataset') Object.assign(element.dataset, value);
+    else element[key] = value;
+  });
+  return element;
+};
+
+// Chat Management
+export const setActiveChatId = (chatId) => {
+  activeChatId = chatId;
+  saveToLocalStorage(ACTIVE_CHAT_KEY, activeChatId);
+  document.dispatchEvent(new Event('activeChatChanged'));
+};
 
 export const saveChatsToLocalStorage = () => {
   const normalizedHistories = Object.fromEntries(
@@ -14,49 +38,25 @@ export const saveChatsToLocalStorage = () => {
       },
     ])
   );
-  localStorage.setItem('chatHistories', JSON.stringify(normalizedHistories));
+  saveToLocalStorage(LOCAL_STORAGE_KEY, normalizedHistories);
 };
 
-export const addMessage = (role, content, skipHistory = false) => {
+export const addMessage = (role, content, skipHistory = false, messageId = null) => {
   if (!activeChatId) return;
 
   const messagesDiv = document.getElementById('messages');
-  const messageWrapper = document.createElement('div');
-  messageWrapper.classList.add('message-wrapper');
+  const messageWrapper = createElement('div', { 
+    classList: ['message-wrapper'], 
+    dataset: { messageId } 
+  });
   messageWrapper.innerHTML = `<div class="message ${role}">${role === 'bot' ? marked.parse(content) : content}</div>`;
 
-  // Add "Copy" buttons to <pre> blocks
-  messageWrapper.querySelectorAll('pre').forEach(pre => {
-    const codeBlock = pre.querySelector('code');
-    if (codeBlock) {
-      const copyButton = document.createElement('button');
-      copyButton.className = 'copy-btn';
-      copyButton.innerHTML = '<i class="fa-regular fa-copy"></i>';
-      copyButton.addEventListener('click', () => {
-        navigator.clipboard.writeText(codeBlock.textContent).then(() => {
-          copyButton.textContent = 'Copied!';
-          setTimeout(() => (copyButton.innerHTML = '<i class="fa-regular fa-copy"></i>'), 2000);
-        });
-      });
-      pre.style.position = 'relative';
-      pre.appendChild(copyButton);
-    }
-  });
-
-  // Add "Copy Message" button
-  const messageCopyButton = document.createElement('button');
-  messageCopyButton.className = 'copy-btn message-copy-btn';
-  messageCopyButton.innerHTML = '<i class="fa-regular fa-copy"></i>';
-  messageCopyButton.addEventListener('click', () => {
-    navigator.clipboard.writeText(messageWrapper.querySelector('.message').textContent).then(() => {
-      messageCopyButton.textContent = 'Copied!';
-      setTimeout(() => (messageCopyButton.innerHTML = '<i class="fa-regular fa-copy"></i>'), 2000);
-    });
-  });
-  messageWrapper.appendChild(messageCopyButton);
+  addCopyButtons(messageWrapper);
 
   messagesDiv.appendChild(messageWrapper);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+  Prism.highlightAll();
 
   if (!skipHistory) {
     chatHistories[activeChatId].messages.push({ role, content });
@@ -64,24 +64,50 @@ export const addMessage = (role, content, skipHistory = false) => {
   }
 };
 
+const addCopyButtons = (messageWrapper) => {
+  messageWrapper.querySelectorAll('pre').forEach(pre => {
+    const codeBlock = pre.querySelector('code');
+    if (codeBlock) {
+      // Add copy button
+      const copyButton = createCopyButton(() => codeBlock.textContent);
+      pre.style.position = 'relative';
+      pre.appendChild(copyButton);
+    }
+  });
+
+  const messageCopyButton = createCopyButton(() => messageWrapper.querySelector('.message').textContent);
+  messageWrapper.appendChild(messageCopyButton);
+};
+
+const createCopyButton = (getText) => {
+  const button = createElement('button', { classList: ['copy-btn'], innerHTML: '<i class="fa-regular fa-copy"></i>' });
+  button.addEventListener('click', () => {
+    navigator.clipboard.writeText(getText()).then(() => {
+      button.textContent = 'Copied!';
+      setTimeout(() => (button.innerHTML = '<i class="fa-regular fa-copy"></i>'), 2000);
+    });
+  });
+  return button;
+};
+
+// UI Updates
 export const switchChat = (chatId) => {
   if (activeChatId === chatId) return;
 
-  activeChatId = chatId;
-  localStorage.setItem('activeChatId', activeChatId);
+  setActiveChatId(chatId);
 
   const messagesDiv = document.getElementById('messages');
   messagesDiv.innerHTML = '';
 
   const chat = chatHistories[chatId];
-  if (chat && chat.messages) {
-    chat.messages.forEach(({ role, content }) => {
-      addMessage(role === 'user' ? 'user' : 'bot', content, true);
-    });
+  if (chat?.messages) {
+    chat.messages.forEach(({ role, content }) => addMessage(role === 'user' ? 'user' : 'bot', content, true));
   }
 
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  updateActiveChatUI(chatId);
+};
 
+const updateActiveChatUI = (chatId) => {
   document.querySelectorAll('.chat-item').forEach(chat => chat.classList.remove('active'));
   document.querySelector(`[data-chat-id="${chatId}"]`)?.classList.add('active');
 };
@@ -90,24 +116,25 @@ export const restoreChats = () => {
   const chatList = document.getElementById('chat-list');
   chatList.innerHTML = '';
 
-  Object.keys(chatHistories).forEach((chatId) => {
+  Object.keys(chatHistories).forEach(chatId => {
     const chatName = chatHistories[chatId].name;
-    const newChat = document.createElement('li');
-    newChat.classList.add('chat-item');
-    newChat.dataset.chatId = chatId;
-    newChat.innerHTML = `${chatName} <button class="ellipsis-btn"><i class="fa-solid fa-ellipsis"></i></button>`;
-    chatList.appendChild(newChat);
-
-    newChat.addEventListener('click', () => switchChat(chatId));
-    addEllipsisMenu(newChat.querySelector('.ellipsis-btn'));
+    const chatItem = createChatItem(chatId, chatName);
+    chatList.appendChild(chatItem);
   });
 
-  const lastActiveChatId = localStorage.getItem('activeChatId');
+  const lastActiveChatId = localStorage.getItem(ACTIVE_CHAT_KEY);
   if (lastActiveChatId && chatHistories[lastActiveChatId]) {
     switchChat(lastActiveChatId);
   } else if (Object.keys(chatHistories).length > 0) {
     switchChat(Object.keys(chatHistories)[0]);
   }
+};
+
+const createChatItem = (chatId, chatName) => {
+  const chatItem = createElement('li', { classList: ['chat-item'], dataset: { chatId }, innerHTML: `${chatName} <button class="ellipsis-btn"><i class="fa-solid fa-ellipsis"></i></button>` });
+  chatItem.addEventListener('click', () => switchChat(chatId));
+  addEllipsisMenu(chatItem.querySelector('.ellipsis-btn'));
+  return chatItem;
 };
 
 export const addNewChat = () => {
@@ -116,70 +143,68 @@ export const addNewChat = () => {
   saveChatsToLocalStorage();
 
   const chatList = document.getElementById('chat-list');
-  const newChat = document.createElement('li');
-  newChat.classList.add('chat-item');
-  newChat.dataset.chatId = chatId;
-  newChat.innerHTML = `${chatHistories[chatId].name} <button class="ellipsis-btn"><i class="fa-solid fa-ellipsis"></i></button>`;
+  const newChat = createChatItem(chatId, chatHistories[chatId].name);
   chatList.appendChild(newChat);
-
-  newChat.addEventListener('click', () => switchChat(chatId));
-  addEllipsisMenu(newChat.querySelector('.ellipsis-btn'));
 
   switchChat(chatId);
 };
 
+// Ellipsis Menu
 export const addEllipsisMenu = (ellipsisBtn) => {
   ellipsisBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-
     document.querySelector('.menu')?.remove();
 
-    const menu = document.createElement('div');
-    menu.classList.add('menu');
-    menu.innerHTML = `
-      <button class="menu-item rename-btn">Rename</button>
-      <button class="menu-item delete-btn">Delete</button>
-    `;
+    const menu = createEllipsisMenu(ellipsisBtn);
     document.body.appendChild(menu);
 
     const rect = ellipsisBtn.getBoundingClientRect();
-    menu.style.position = 'absolute';
     menu.style.top = `${rect.bottom + window.scrollY}px`;
     menu.style.left = `${rect.left + window.scrollX}px`;
-
-    // Rename chat functionality
-    menu.querySelector('.rename-btn').addEventListener('click', () => {
-      const newName = prompt('Enter a new name for the chat:');
-      if (newName) {
-        const chatId = ellipsisBtn.parentElement.dataset.chatId;
-        chatHistories[chatId].name = newName; // Save the new name in chatHistories
-        ellipsisBtn.parentElement.firstChild.textContent = newName; // Update the UI
-        saveChatsToLocalStorage(); // Save to localStorage
-      }
-      menu.remove();
-    });
-
-    // Delete chat functionality
-    menu.querySelector('.delete-btn').addEventListener('click', () => {
-      const chatId = ellipsisBtn.parentElement.dataset.chatId;
-      delete chatHistories[chatId];
-      ellipsisBtn.parentElement.remove();
-      saveChatsToLocalStorage();
-
-      if (activeChatId === chatId) {
-        const remainingChats = Object.keys(chatHistories);
-        if (remainingChats.length > 0) {
-          switchChat(remainingChats[0]);
-        } else {
-          activeChatId = null;
-          document.getElementById('messages').innerHTML = '';
-        }
-      }
-      menu.remove();
-    });
 
     document.addEventListener('click', (event) => {
       if (!menu.contains(event.target) && event.target !== ellipsisBtn) menu.remove();
     }, { once: true });
   });
+};
+
+const createEllipsisMenu = (ellipsisBtn) => {
+  const menu = createElement('div', { classList: ['menu'], innerHTML: `
+    <button class="menu-item rename-btn">Rename</button>
+    <button class="menu-item delete-btn">Delete</button>
+  ` });
+
+  menu.querySelector('.rename-btn').addEventListener('click', () => handleRenameChat(ellipsisBtn, menu));
+  menu.querySelector('.delete-btn').addEventListener('click', () => handleDeleteChat(ellipsisBtn, menu));
+
+  return menu;
+};
+
+const handleRenameChat = (ellipsisBtn, menu) => {
+  const newName = prompt('Enter a new name for the chat:');
+  if (newName) {
+    const chatId = ellipsisBtn.parentElement.dataset.chatId;
+    chatHistories[chatId].name = newName;
+    ellipsisBtn.parentElement.firstChild.textContent = newName;
+    saveChatsToLocalStorage();
+  }
+  menu.remove();
+};
+
+const handleDeleteChat = (ellipsisBtn, menu) => {
+  const chatId = ellipsisBtn.parentElement.dataset.chatId;
+  delete chatHistories[chatId];
+  ellipsisBtn.parentElement.remove();
+  saveChatsToLocalStorage();
+
+  if (activeChatId === chatId) {
+    const remainingChats = Object.keys(chatHistories);
+    if (remainingChats.length > 0) {
+      switchChat(remainingChats[0]);
+    } else {
+      setActiveChatId(null);
+      document.getElementById('messages').innerHTML = '';
+    }
+  }
+  menu.remove();
 };

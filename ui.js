@@ -29,3 +29,23 @@ export const setupSearch = () => {
     }
   });
 };
+
+export const setupSettingsModal = () => {
+  const settingsLink = document.getElementById('settings-link');
+  const settingsModal = document.getElementById('settings-modal');
+  const closeSettingsBtn = document.getElementById('close-settings-btn');
+
+  // Open the modal
+  settingsLink.addEventListener('click', () => {
+    settingsModal.classList.remove('hidden');
+    settingsModal.setAttribute('aria-hidden', 'false');
+    closeSettingsBtn.focus(); // Move focus to the close button
+  });
+
+  // Close the modal
+  closeSettingsBtn.addEventListener('click', () => {
+    settingsModal.classList.add('hidden');
+    settingsModal.setAttribute('aria-hidden', 'true');
+    settingsLink.focus(); // Return focus to the settings link
+  });
+};
