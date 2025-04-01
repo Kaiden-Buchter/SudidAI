@@ -4,55 +4,58 @@ export const setupChatForm = () => {
   const chatForm = document.getElementById('chat-form');
   const userInput = document.getElementById('user-input');
 
-  chatForm.addEventListener('submit', (e) => {
+  chatForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const userMessage = userInput.value.trim();
 
     if (userMessage) {
-      addMessage('user', userMessage); // Add user message
+      addMessage('user', userMessage); // Add user message to the UI
       userInput.value = ''; // Clear input field
 
       const currentChatId = activeChatId; // Capture the current chat ID
-      console.log('Current Chat ID:', currentChatId); // Debugging
 
-      // Simulate bot response after a delay
-      setTimeout(() => {
-        if (chatHistories[currentChatId]) {
-          const botMessage = `
-### Heading 3
-**Bold Text**
-*Italic Text*
-\`Inline Code\`
+      try {
+        // Send user message to the Cloudflare Worker
+        const requestBody = {
+          messages: [
+            { role: 'system', content: 'You are a helpful assistant.' },
+            ...(Array.isArray(chatHistories[currentChatId]?.messages)
+              ? chatHistories[currentChatId].messages.map((message) => ({
+                  role: message.sender === 'user' ? 'user' : 'assistant',
+                  content: message.text || message.content, // Normalize structure
+                }))
+              : []),
+            { role: 'user', content: userMessage },
+          ],
+        };
+        console.log('Request Body:', requestBody);
+        
+        const response = await fetch('https://chatgpt-worker.knbuchtyy879.workers.dev/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+        });
 
-\`\`\`javascript
-// Code block example
-console.log('Hello, world!');
-\`\`\`
-
-- List Item 1
-- List Item 2
-          `;
-          
-          // Debugging
-          console.log('Current Chat ID:', currentChatId);
-          console.log('Chat Histories:', chatHistories);
-          console.log('Bot Message:', botMessage);
-          
-          // Add bot response to chat history
-          chatHistories[currentChatId].push({ sender: 'bot', text: botMessage });
-
-          // Add bot response to the UI
-          if (activeChatId === currentChatId) {
-            addMessage('bot', botMessage, true);
-          }
-
-          // Save updated chat history to local storage
-          saveChatsToLocalStorage();
-          console.log('Chat Histories Updated:', chatHistories); // Debugging
-        } else {
-          console.error('Chat history not found for currentChatId:', currentChatId);
+        if (!response.ok) {
+          throw new Error('Failed to fetch response from ChatGPT API');
         }
-      }, 1000); // 1-second delay for bot response
+
+        const data = await response.json();
+        if (!chatHistories[currentChatId]) {
+          chatHistories[currentChatId] = { messages: [] };
+        }
+        
+        const botMessage = data.choices?.[0]?.message?.content || 'Sorry, I could not process your request.';
+        chatHistories[currentChatId].messages.push({ role: 'assistant', content: botMessage });
+        saveChatsToLocalStorage(); // Save the updated chat history
+        // Add bot response to the UI
+        if (activeChatId === currentChatId) {
+          addMessage('bot', botMessage, true);
+        }
+      } catch (error) {
+        console.error('Error communicating with ChatGPT API:', error);
+        addMessage('bot', 'Sorry, something went wrong. Please try again.', true);
+      }
     }
   });
 };
