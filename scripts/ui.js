@@ -46,6 +46,6 @@ export const setupSettingsModal = () => {
   closeSettingsBtn.addEventListener('click', () => {
     settingsModal.classList.add('hidden');
     settingsModal.setAttribute('aria-hidden', 'true');
-    settingsLink.focus(); // Return focus to the settings link
+    settingsLink.focus();
   });
 };
