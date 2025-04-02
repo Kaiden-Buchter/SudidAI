@@ -4,31 +4,6 @@ export const toggleSidebar = () => {
   sidebar.classList.toggle('sidebar-visible');
 };
 
-export const setupChatInput = () => {
-  const chatInput = document.getElementById('user-input'); // Ensure this matches your input's ID
-
-  if (!chatInput) {
-    console.error('Chat input element with ID "user-input" not found!');
-    return;
-  }
-
-  chatInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' && event.shiftKey) {
-      event.preventDefault(); // Prevent default behavior (e.g., form submission)
-
-      const cursorPosition = chatInput.selectionStart;
-      const textBeforeCursor = chatInput.value.substring(0, cursorPosition);
-      const textAfterCursor = chatInput.value.substring(cursorPosition);
-
-      // Insert a newline at the cursor position
-      chatInput.value = `${textBeforeCursor}\n${textAfterCursor}`;
-
-      // Move the cursor to the position after the newline
-      chatInput.selectionStart = chatInput.selectionEnd = cursorPosition + 1;
-    }
-  });
-};
-
 export const setupSearch = () => {
   const searchBtn = document.getElementById('search-btn');
   const chatList = document.getElementById('chat-list');

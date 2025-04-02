@@ -1,5 +1,5 @@
 import { restoreChats } from './chat.js';
-import { toggleSidebar, setupSearch, setupSettingsModal, setupChatInput } from './ui.js';
+import { toggleSidebar, setupSearch, setupSettingsModal } from './ui.js';
 import { setupChatForm, setupNewChatButton } from './events.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -16,8 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupChatForm();
   setupNewChatButton();
   setupSettingsModal();
-  setupChatInput();
-
+  
   const toggleSidebarBtn = document.getElementById('sidebar-toggle');
   toggleSidebarBtn.addEventListener('click', toggleSidebar);
 });
