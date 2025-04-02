@@ -34,10 +34,14 @@ const handleChatResponse = async (currentChatId, userMessage) => {
     addMessage('bot', '<div class="spinner"></div>', true, thinkingMessageId);
 
     const requestBody = createRequestBody(currentChatId, userMessage);
+    const token = localStorage.getItem('auth_token');
 
     const response = await fetch('https://chatgpt-worker.knbuchtyy879.workers.dev/api/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
       body: JSON.stringify(requestBody),
     });
 
