@@ -21,7 +21,7 @@ const createElement = (tag, options = {}) => {
 // Chat Management
 export const setActiveChatId = (chatId) => {
   activeChatId = chatId;
-  saveToLocalStorage(ACTIVE_CHAT_KEY, activeChatId);
+  saveToLocalStorage(ACTIVE_CHAT_KEY, activeChatId); // Save to localStorage
   document.dispatchEvent(new Event('activeChatChanged'));
 };
 
@@ -127,17 +127,50 @@ export const restoreChats = () => {
   const chatList = document.getElementById('chat-list');
   chatList.innerHTML = '';
 
-  Object.keys(chatHistories).forEach(chatId => {
-    const chatName = chatHistories[chatId].name;
-    const chatItem = createChatItem(chatId, chatName);
-    chatList.appendChild(chatItem);
+  // Group chats by month and year
+  const groupedChats = Object.entries(chatHistories).reduce((groups, [chatId, chat]) => {
+    const timestamp = parseInt(chatId.split('-')[1], 10); // Extract timestamp from chatId
+    const date = new Date(timestamp);
+    const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+    if (!groups[monthYear]) groups[monthYear] = { chats: [], timestamp };
+    groups[monthYear].chats.push({ chatId, chat });
+    return groups;
+  }, {});
+
+  // Sort groups by their timestamp (newest first)
+  const sortedGroups = Object.entries(groupedChats).sort(
+    ([, groupA], [, groupB]) => groupB.timestamp - groupA.timestamp
+  );
+
+  // Render chats grouped by month and year
+  sortedGroups.forEach(([monthYear, group]) => {
+    const { chats } = group;
+
+    if (chats.length === 0) return; // Skip empty groups
+
+    // Add a horizontal line with the date label
+    const dateSeparator = document.createElement('div');
+    dateSeparator.classList.add('date-separator');
+    dateSeparator.innerHTML = `<hr><span>${monthYear}</span>`;
+    chatList.appendChild(dateSeparator);
+
+    // Sort chats within the group by date (newest first)
+    chats.sort((a, b) => parseInt(b.chatId.split('-')[1], 10) - parseInt(a.chatId.split('-')[1], 10));
+
+    // Render each chat
+    chats.forEach(({ chatId, chat }) => {
+      const chatItem = createChatItem(chatId, chat.name);
+      chatList.appendChild(chatItem);
+    });
   });
 
+  // Restore the last active chat
   const lastActiveChatId = localStorage.getItem(ACTIVE_CHAT_KEY);
   if (lastActiveChatId && chatHistories[lastActiveChatId]) {
-    switchChat(lastActiveChatId);
+    switchChat(lastActiveChatId); // Switch to the last active chat
   } else if (Object.keys(chatHistories).length > 0) {
-    switchChat(Object.keys(chatHistories)[0]);
+    switchChat(Object.keys(chatHistories)[0]); // Default to the first chat
   }
 };
 
@@ -153,10 +186,7 @@ export const addNewChat = () => {
   chatHistories[chatId] = { name: `Chat ${Object.keys(chatHistories).length + 1}`, messages: [] };
   saveChatsToLocalStorage();
 
-  const chatList = document.getElementById('chat-list');
-  const newChat = createChatItem(chatId, chatHistories[chatId].name);
-  chatList.appendChild(newChat);
-
+  restoreChats(); // Re-render the chat list and dividers
   switchChat(chatId);
 };
 
@@ -196,8 +226,9 @@ const handleRenameChat = (ellipsisBtn, menu) => {
   if (newName) {
     const chatId = ellipsisBtn.parentElement.dataset.chatId;
     chatHistories[chatId].name = newName;
-    ellipsisBtn.parentElement.firstChild.textContent = newName;
     saveChatsToLocalStorage();
+
+    restoreChats(); // Re-render the chat list and dividers
   }
   menu.remove();
 };
@@ -205,8 +236,9 @@ const handleRenameChat = (ellipsisBtn, menu) => {
 const handleDeleteChat = (ellipsisBtn, menu) => {
   const chatId = ellipsisBtn.parentElement.dataset.chatId;
   delete chatHistories[chatId];
-  ellipsisBtn.parentElement.remove();
   saveChatsToLocalStorage();
+
+  restoreChats(); // Re-render the chat list and dividers
 
   if (activeChatId === chatId) {
     const remainingChats = Object.keys(chatHistories);

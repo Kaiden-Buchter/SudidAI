@@ -267,6 +267,29 @@ header {
   background-color: #444654;
 }
 
+/* Date Separator */
+.date-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+  position: relative;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+.date-separator hr {
+  flex: 1;
+  border: none;
+  border-top: 1px solid #444654;
+  margin: 0 1rem;
+}
+.date-separator span {
+  background-color: #343541;
+  padding: 0 0.5rem;
+  border-radius: 12px;
+}
+
 /* Chat Form */
 #chat-form {
   display: flex;
