@@ -146,7 +146,7 @@ export const restoreChats = () => {
   );
 
   renderChatGroup(chatList, 'Pinned', groupedChats.Pinned);
-  renderOtherChats(chatList, groupedChats.Other);
+  renderChats(chatList, groupedChats.Other);
 
   const lastActiveChatId = localStorage.getItem(ACTIVE_CHAT_KEY);
   switchChat(lastActiveChatId || Object.keys(chatHistories)[0]);
@@ -165,7 +165,7 @@ const renderChatGroup = (chatList, label, chats) => {
   chats.forEach(({ chatId, chat }) => chatList.appendChild(createChatItem(chatId, chat.name)));
 };
 
-const renderOtherChats = (chatList, otherChats) => {
+const renderChats = (chatList, otherChats) => {
   const groupedByDate = otherChats.reduce((groups, { chatId, chat }) => {
     const date = new Date(parseInt(chatId.split('-')[1], 10));
     const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
