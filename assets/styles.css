@@ -376,6 +376,63 @@ button:disabled {
   background-color: #444654;
 }
 
+/* Password Modal */
+#password-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+#password-modal .modal-content {
+  background-color: #202123;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  color: #d1d5db;
+  width: 90%;
+  max-width: 400px;
+}
+#password-modal .modal-content label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+#password-modal .modal-content input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #444654;
+  border-radius: 8px;
+  background-color: #343541;
+  color: #ffffff;
+  font-size: 1rem;
+  outline: none;
+}
+#password-modal .modal-content button {
+  padding: 10px 20px;
+  background-color: #10a37f;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+#password-modal .modal-content button:hover {
+  background-color: #0e8c6a;
+}
+
 /* Custom Checkbox Styling */
 input[type="checkbox"] {
   appearance: none;

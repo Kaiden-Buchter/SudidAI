@@ -5,6 +5,7 @@ import {
   saveChatsToLocalStorage,
   activeChatId,
 } from './chat.js';
+import { createShowPasswordPrompt } from './ui.js';
 
 let isWaitingForResponse = false;
 
@@ -32,7 +33,7 @@ const handleChatResponse = async (currentChatId, userMessage, thinkingMessageId)
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+        Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
       },
       body: JSON.stringify(createRequestBody(currentChatId, userMessage)),
     });
@@ -71,6 +72,7 @@ const handleChatFormSubmit = async (userInput, sendButton) => {
   addMessage('user', userMessage);
   addMessage('bot', '<div class="spinner"></div>', true, thinkingMessageId);
   userInput.value = '';
+  localStorage.setItem('chat_draft', '');
 
   await handleChatResponse(activeChatId, userMessage, thinkingMessageId);
 
@@ -101,4 +103,37 @@ export const setupChatForm = () => {
 
 export const setupNewChatButton = () => {
   document.getElementById('new-chat-btn').addEventListener('click', addNewChat);
+};
+
+// Authentication
+export const ensureAuthenticated = async () => {
+  const token = localStorage.getItem('auth_token');
+  const expiration = localStorage.getItem('auth_expiration');
+
+  if (token && expiration && Date.now() < parseInt(expiration, 10)) return true;
+
+  const password = await createShowPasswordPrompt();
+  if (!password) return false;
+
+  try {
+    const response = await fetch('https://chatgpt-worker.knbuchtyy879.workers.dev/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+
+    if (response.ok) {
+      const { token, expiration } = await response.json();
+      localStorage.setItem('auth_token', token);
+      localStorage.setItem('auth_expiration', expiration);
+      return true;
+    } else {
+      alert('Invalid password. Please try again.');
+      return ensureAuthenticated();
+    }
+  } catch (error) {
+    console.error('Authentication error:', error);
+    alert('An error occurred while authenticating. Please try again later.');
+    return false;
+  }
 };
