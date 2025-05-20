@@ -1,8 +1,47 @@
 // Sidebar Toggle
 export const toggleSidebar = () => {
   const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('main-content');
+  const chatContainer = document.getElementById('chat-container');
+  
   sidebar.classList.toggle('sidebar-hidden');
   sidebar.classList.toggle('sidebar-visible');
+  
+  // Update toggle button icon and class based on sidebar state
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const toggleIcon = sidebarToggle.querySelector('i');
+  
+  if (sidebar.classList.contains('sidebar-hidden')) {
+    // Change icon to indicate "open sidebar" when sidebar is hidden
+    toggleIcon.classList.remove('fa-bars');
+    toggleIcon.classList.add('fa-chevron-right');
+    sidebarToggle.classList.add('sidebar-closed');
+    // Make sure main content expands
+    mainContent.style.width = '100%';
+    mainContent.style.marginLeft = '0';
+    // Allow chat container to take full space
+    chatContainer.style.maxWidth = '100%';
+    chatContainer.style.width = '100%';
+    chatContainer.style.margin = '0';
+    chatContainer.style.borderRadius = '0';
+    chatContainer.style.height = '100vh';
+    mainContent.style.padding = '0';
+  } else {
+    // Change back to bars icon when sidebar is visible
+    toggleIcon.classList.remove('fa-chevron-right');
+    toggleIcon.classList.add('fa-bars');
+    sidebarToggle.classList.remove('sidebar-closed');
+    // Restore main content width
+    mainContent.style.width = 'calc(100% - var(--sidebar-width))';
+    mainContent.style.marginLeft = '';
+    mainContent.style.padding = '1.5rem';
+    // Restore chat container original styling
+    chatContainer.style.maxWidth = '1200px';
+    chatContainer.style.width = '100%';
+    chatContainer.style.margin = '0 auto';
+    chatContainer.style.borderRadius = 'var(--border-radius-lg)';
+    chatContainer.style.height = '100%';
+  }
 };
 
 // Search Functionality

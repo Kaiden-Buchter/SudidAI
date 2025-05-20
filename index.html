@@ -16,18 +16,22 @@
         upgrade-insecure-requests;">
   <title>Sudid</title>
   <link rel="icon" type="image/icon" href="assets/favicon.ico">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css?v=1.0">
 </head>
 <body>
   <div id="app">
+    <!-- Sidebar Toggle Button (Now outside the sidebar) -->
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    
     <!-- Sidebar -->
     <nav id="sidebar" class="sidebar-visible" aria-label="Sidebar">
       <div id="sidebar-header">
-        <button id="sidebar-toggle" class="sidebar-toggle" disabled aria-label="Toggle Sidebar">
-          <i class="fa-solid fa-bars"></i>
-        </button>
         <button id="search-btn" aria-label="Search">
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>

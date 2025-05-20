@@ -54,6 +54,17 @@ export const addMessage = (role, content, skipHistory = false, messageId = null)
   if (!activeChatId) return;
 
   const messagesDiv = document.getElementById('messages');
+  
+  // Configure marked to properly handle code blocks with language
+  marked.setOptions({
+    highlight: function(code, lang) {
+      if (Prism.languages[lang]) {
+        return Prism.highlight(code, Prism.languages[lang], lang);
+      }
+      return code;
+    }
+  });
+  
   const escapedContent =
     role === 'bot'
       ? marked.parse(content)
@@ -63,6 +74,21 @@ export const addMessage = (role, content, skipHistory = false, messageId = null)
     classList: ['message-wrapper'],
     dataset: { messageId },
     innerHTML: `<div class="message ${role}">${escapedContent}</div>`,
+  });
+
+  // Add language class and line-numbers class to pre elements
+  messageWrapper.querySelectorAll('pre').forEach(pre => {
+    pre.classList.add('line-numbers');
+    const codeElement = pre.querySelector('code');
+    if (codeElement) {
+      const codeClass = Array.from(codeElement.classList).find(cls => cls.startsWith('language-'));
+      if (codeClass) {
+        const language = codeClass.replace('language-', '');
+        pre.setAttribute('data-language', language);
+      } else {
+        pre.setAttribute('data-language', 'code');
+      }
+    }
   });
 
   addCopyButtons(messageWrapper);
@@ -87,6 +113,8 @@ const addCopyButtons = (messageWrapper) => {
   messageWrapper.querySelectorAll('pre').forEach((element) => {
     const copyButton = createCopyButton(() => element.textContent);
     element.style.position = 'relative';
+    copyButton.classList.add('code-copy-btn');
+    copyButton.title = "Copy code";
     element.appendChild(copyButton);
   });
 };
@@ -184,7 +212,7 @@ const createChatItem = (chatId, chatName) => {
   const chatItem = createElement('li', {
     classList: ['chat-item'],
     dataset: { chatId },
-    innerHTML: `${chatName} <button class="ellipsis-btn"><i class="fa-solid fa-ellipsis"></i></button>`,
+    innerHTML: `<div class="chat-item-content"><span class="chat-text">${chatName}</span></div><button class="ellipsis-btn"><i class="fa-solid fa-ellipsis"></i></button>`,
   });
   chatItem.addEventListener('click', () => switchChat(chatId));
   addEllipsisMenu(chatItem.querySelector('.ellipsis-btn'));
