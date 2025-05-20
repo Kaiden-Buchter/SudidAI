@@ -62,7 +62,6 @@ body, #app {
   overflow: hidden;
   transition: background-color var(--transition-normal);
 }
-
 /* Background with animated patterns */
 body::before {
   content: '';
@@ -264,6 +263,42 @@ body::after {
 
 /* General App Layout */
 
+/* Sidebar Toggle Button */
+.sidebar-toggle {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  z-index: 30; /* Higher z-index to be above sidebar */
+  background-color: var(--glass-highlight);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  font-size: 1.15rem;
+  cursor: pointer;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+  transition: all var(--transition-normal);
+  box-shadow: var(--card-shadow);
+}
+
+.sidebar-toggle:hover {
+  background-color: var(--bg-surface-hover);
+  transform: translateY(-50%) translateX(3px);
+  box-shadow: var(--glow-shadow);
+}
+
+.sidebar-toggle:active {
+  transform: translateY(-50%);
+}
+
+/* Style for sidebar toggle when sidebar is closed */
+.sidebar-toggle.sidebar-closed {
+  background-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+  left: 0;
+  z-index: 100; /* Ensure it's above the chat container */
+}
+
 /* Sidebar */
 #sidebar {
   width: var(--sidebar-width);
@@ -283,10 +318,20 @@ body::after {
   overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
-.sidebar-hidden { transform: translateX(-100%); }
+.sidebar-hidden { 
+  transform: translateX(-100%);
+}
+
 .sidebar-visible { 
   transform: translateX(0);
   animation: slideRight 0.5s ease;
+}
+
+/* Adjust the main content based on sidebar visibility */
+.sidebar-hidden + #main-content {
+  margin-left: 0;
+  width: 100%;
+  padding: 0; /* Remove padding entirely for full-width experience */
 }
 
 #sidebar::after {
@@ -618,10 +663,11 @@ body::after {
   flex-direction: column;
   overflow: hidden;
   margin: 0 auto;
-  width: 100%;
+  width: calc(100% - var(--sidebar-width));
   padding: 1.5rem;
   position: relative;
   background-color: var(--bg-main);
+  transition: width var(--transition-normal), margin-left var(--transition-normal);
 }
 
 header {
@@ -648,7 +694,7 @@ header {
   flex-direction: column;
   margin: 0 auto;
   padding: 1.5rem 2rem;
-  overflow: hidden; /* Let messages div handle scrolling */
+  overflow: hidden;
   background-color: var(--glass-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -656,11 +702,13 @@ header {
   border: 1px solid var(--glass-border);
   box-shadow: var(--card-shadow);
   width: 100%;
-  height: 100%; /* Use full height */
+  height: 100%;
   max-height: 95vh;
   animation: fadeIn 0.5s ease-out;
   position: relative;
   box-sizing: border-box;
+  max-width: 1200px; /* Add max-width for better readability on large screens */
+  transition: max-width var(--transition-normal), width var(--transition-normal);
 }
 
 #send {
@@ -704,6 +752,7 @@ header {
   width: 100%;
   min-height: 0;
   box-sizing: border-box;
+  transition: padding var(--transition-normal);
 }
 
 /* Custom Scrollbar for Messages */
@@ -806,7 +855,6 @@ header {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
-
 .message.bot::before {
   content: '';
   position: absolute;
@@ -1388,26 +1436,16 @@ input[type="checkbox"]:focus {
 
 /* Styling for <pre> and <code> */
 pre {
-  background-color: rgba(20, 22, 30, 0.9);
-  color: var(--text-primary);
+  background-color: #171c2c;
+  color: #d1d5db;
   padding: 1.25rem;
   border-radius: var(--border-radius-md);
-  overflow: visible;
-  font-family: 'Courier New', Courier, monospace;
+  overflow-x: auto;
+  font-family: 'Fira Code', 'Courier New', monospace;
   margin: 1.25rem 0;
-  box-shadow: var(--card-shadow);
-  border: 1px solid var(--surface-border);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
   position: relative;
-  transition: all var(--transition-normal);
-  max-width: 100%;
-  white-space: pre-wrap;
-  height: auto;
-  overflow-y: visible;
-}
-
-pre:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(99, 102, 241, 0.15);
 }
 
 pre::before {
@@ -1416,264 +1454,202 @@ pre::before {
   top: 0;
   left: 0;
   width: 100%;
-  height: 3px;
+  height: 4px;
   background: var(--gradient);
-  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+  opacity: 0.7;
 }
 
 code {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.95rem;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.9rem;
   color: var(--accent-light);
   background-color: rgba(99, 102, 241, 0.1);
   padding: 0.2rem 0.4rem;
-  border-radius: var(--border-radius-sm);
-  transition: background-color var(--transition-fast);
-  word-break: break-word;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  max-width: 100%;
-}
-
-code:hover {
-  background-color: rgba(99, 102, 241, 0.15);
+  border-radius: 4px;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  transition: all var(--transition-normal);
 }
 
 pre code {
   display: block;
-  background-color: transparent;
-  overflow: visible;
-  height: auto;
-  max-height: none;
-  white-space: pre-wrap;
-  color: var(--text-primary);
+  background-color: inherit;
+  color: inherit;
   padding: 0;
+  border: none;
   border-radius: 0;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-/* Enhanced Scrollbar Styles */
-::-webkit-scrollbar { 
-  width: 6px;
-  height: 6px;
+/* Code language badge */
+pre::after {
+  content: attr(data-language);
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--accent);
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0 var(--border-radius-md) 0 var(--border-radius-md);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-  margin: 4px 0;
+/* Code tag separators styling */
+.message code:not(pre code)::before,
+.message code:not(pre code)::after {
+  content: '`';
+  opacity: 0.7;
+  color: var(--accent);
+  font-weight: 700;
+  text-shadow: 0 0 5px rgba(99, 102, 241, 0.3);
+  margin: 0 0.1rem;
 }
 
+.message code:not(pre code):hover {
+  background-color: rgba(99, 102, 241, 0.2);
+  color: var(--accent-light);
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.2);
+  transform: translateY(-1px);
+  cursor: default;
+}
+
+/* Line numbers styling */
+.line-numbers .line-numbers-rows {
+  border-right: 1px solid rgba(99, 102, 241, 0.3);
+  padding-right: 0.75rem;
+}
+
+.line-numbers-rows > span:before {
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 400;
+}
+
+/* Special styling for different language types */
+pre[data-language="javascript"]::after,
+pre[data-language="js"]::after {
+  background: #f0db4f;
+  color: #323330;
+}
+
+pre[data-language="typescript"]::after,
+pre[data-language="ts"]::after {
+  background: #3178c6;
+  color: white;
+}
+
+pre[data-language="python"]::after,
+pre[data-language="py"]::after {
+  background: #306998;
+  color: white;
+}
+
+pre[data-language="html"]::after {
+  background: #e34c26;
+  color: white;
+}
+
+pre[data-language="css"]::after {
+  background: #264de4;
+  color: white;
+}
+
+pre[data-language="bash"]::after,
+pre[data-language="shell"]::after {
+  background: #3e3e3e;
+  color: #89e051;
+}
+
+pre[data-language="json"]::after {
+  background: #000000;
+  color: #8bc34a;
+}
+
+/* Add animation to code blocks */
+pre {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Code block highlight effect */
+pre::before {
+  animation: gradientShift 6s linear infinite;
+  background-size: 200% 100%;
+  background-image: linear-gradient(
+    to right,
+    var(--accent),
+    var(--accent-light),
+    var(--accent-dark),
+    var(--accent)
+  );
+}
+
+/* Code block hover effects */
+pre:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+/* Code block copy button */
+.code-copy-btn {
+  position: absolute !important;
+  top: 8px !important;
+  right: 45px !important; /* Position to the left of the language badge */
+  padding: 0.35rem 0.6rem !important;
+  background: rgba(99, 102, 241, 0.2) !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  border-radius: var(--border-radius-sm) !important;
+  font-size: 0.75rem !important;
+  color: var(--text-primary) !important;
+  opacity: 0 !important;
+  transition: all var(--transition-normal) !important;
+  box-shadow: none !important;
+}
+
+pre:hover .code-copy-btn {
+  opacity: 1 !important;
+}
+
+.code-copy-btn:hover {
+  background: rgba(99, 102, 241, 0.4) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, var(--accent), var(--accent-dark));
-  border-radius: var(--border-radius-full);
-  transition: all var(--transition-normal);
+  background-color: #444654;
+  border-radius: 8px;
 }
-
-::-webkit-scrollbar-thumb:hover { 
-  background: var(--accent-light);
-  box-shadow: 0 0 8px var(--accent-glow);
-}
-
-/* Firefox scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--accent) transparent;
-}
-
-/* Ensure no horizontal scrollbars on critical containers */
-#sidebar, 
-#chat-list, 
-.message-wrapper, 
-#messages, 
-#main-content {
-  overflow-x: hidden;
-}
-
-/* Ensure proper vertical scrolling */
-#chat-list, 
-#messages {
-  overflow-y: auto;
-}
+::-webkit-scrollbar-thumb:hover { background-color: #10a37f; }
 
 /* Responsive Styles */
 @media (max-width: 480px) {
-  :root {
-    --sidebar-width: 100%;
-  }
-  
-  #app {
-    flex-direction: column;
-  }
-  
-  #sidebar {
-    width: 100%;
-    height: auto;
-    max-height: 40vh;
-    border-right: none;
-    border-bottom: 1px solid var(--surface-border);
-  }
-  
-  .sidebar-hidden {
-    transform: translateY(-100%);
-  }
-  
-  #main-content {
-    padding: 1rem;
-  }
-  
-  #chat-container { 
-    padding: 1rem;
-    max-width: 100%; 
-  }
-  
-  button { 
-    font-size: 0.9rem; 
-    padding: 0.6rem 1rem; 
-  }
-  
-  #messages { 
-    padding: 0.75rem; 
-  }
-  
-  .message { 
-    font-size: 0.9rem; 
-    padding: 0.75rem 1rem;
-    max-width: 90%; 
-  }
-  
-  .modal-content {
-    padding: 1.5rem;
-    width: 95%;
-  }
+  #sidebar { width: 200px; }
+  #chat-container { padding: 1rem; max-width: 100%; }
+  button { font-size: 0.9rem; padding: 0.5rem 1rem; }
+  #messages { padding: 0.5rem; }
 }
 
 @media (max-width: 768px) {
-  :root {
-    --sidebar-width: 240px;
-  }
-  
-  #sidebar { 
-    width: var(--sidebar-width);
-    z-index: 100;
-    position: absolute;
-    height: 100vh;
-    transform: translateX(-100%);
-  }
-  
-  .sidebar-visible {
-    transform: translateX(0);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  }
-  
-  #main-content {
-    width: 100%;
-    padding: 1rem;
-  }
-  
-  #chat-container { 
-    padding: 1.25rem; 
-    width: 100%;
+  .sidebar-hidden + #main-content #chat-container {
     max-width: 100%;
-  }
-  
-  button { 
-    font-size: 1rem; 
-    padding: 0.75rem 1.25rem; 
-  }
-  
-  #messages { 
-    padding: 1rem; 
-  }
-  
-  .message { 
-    font-size: 1rem; 
-    padding: 0.75rem 1.25rem;
-    max-width: 85%; 
-  }
-  
-  .message-wrapper {
-    max-width: 95%;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1023px) {
-  :root {
-    --sidebar-width: 260px;
-  }
-
-  #sidebar { 
-    width: var(--sidebar-width);
-    height: 100vh;
-  }
-  
-  #main-content { 
-    width: calc(100% - var(--sidebar-width)); 
-    padding: 1.5rem;
-  }
-  
-  #chat-container {
-    width: 100%;
-    padding: 1.75rem;
   }
 }
 
 @media (min-width: 1024px) {
-  :root {
-    --sidebar-width: 280px;
-  }
-  
-  #sidebar { 
-    width: var(--sidebar-width); 
-    height: 100vh; 
-  }
-  
-  #main-content { 
-    width: calc(100% - var(--sidebar-width)); 
-    padding: 2rem;
-  }
-  
-  #chat-container {
-    width: 100%;
-    max-width: 1200px;
+  .sidebar-hidden + #main-content #chat-container {
+    max-width: calc(100% - 2rem);
     margin: 0 auto;
-    padding: 2rem;
-  }
-  
-  button { 
-    font-size: 1rem; 
-    padding: 0.85rem 1.75rem; 
-  }
-  
-  #messages { 
-    padding: 1.5rem; 
-  }
-  
-  .message { 
-    font-size: 1rem; 
-    padding: 1.15rem 1.75rem; 
   }
 }
 
-@media (min-width: 1440px) {
-  :root {
-    --sidebar-width: 320px;
-  }
-  
-  #chat-container {
-    max-width: 1400px;
-    padding: 2.5rem;
-  }
-}
-
-/* Media queries for message sizing */
-@media (max-width: 768px) {
-  .message-wrapper {
-    max-width: 95%;
-  }
-}
-
-@media (min-width: 1200px) {
-  .message-wrapper {
-    max-width: 75%;
-  }
+/* When sidebar is hidden, allow chat container to expand */
+.sidebar-hidden + #main-content #chat-container {
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+  transition: max-width var(--transition-normal), border-radius var(--transition-normal);
 }
