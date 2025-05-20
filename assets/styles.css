@@ -297,6 +297,7 @@ body::after {
   box-shadow: 0 0 10px var(--accent-glow);
   left: 0;
   z-index: 100; /* Ensure it's above the chat container */
+  position: fixed;
 }
 
 /* Sidebar */
@@ -332,6 +333,11 @@ body::after {
   margin-left: 0;
   width: 100%;
   padding: 0; /* Remove padding entirely for full-width experience */
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100vh; /* Set explicit height to fill the viewport */
+  overflow: hidden;
 }
 
 #sidebar::after {
@@ -438,7 +444,7 @@ body::after {
   content: '';
   position: absolute;
   top: -6px;
-  right: 10px;
+  left: 10px; /* Changed from right to left to position under the button */
   width: 12px;
   height: 12px;
   background-color: var(--glass-bg);
@@ -474,6 +480,13 @@ body::after {
 
 .menu-item:active {
   transform: translateX(1px);
+}
+
+/* Menu positioned above the button */
+.menu-above::before {
+  top: auto;
+  bottom: -6px;
+  transform: rotate(225deg);
 }
 
 .clickable {
@@ -550,6 +563,7 @@ body::after {
   position: relative;
   box-sizing: border-box;
   display: flex;
+  min-height: 90px; /* Ensure minimum height for chat items */
 }
 
 #chat-list li::before {
@@ -586,6 +600,9 @@ body::after {
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
+  min-width: 0; /* Prevent text from causing overflow */
+  font-size: 1rem; /* Ensure text isn't too small */
+  line-height: 1.5; /* Better readability */
 }
 
 /* Adjust chat button so it doesn't cause overflow */
@@ -667,7 +684,7 @@ body::after {
   padding: 1.5rem;
   position: relative;
   background-color: var(--bg-main);
-  transition: width var(--transition-normal), margin-left var(--transition-normal);
+  transition: width var(--transition-normal), margin-left var(--transition-normal), position var(--transition-normal), left var(--transition-normal);
 }
 
 header {
@@ -742,7 +759,7 @@ header {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1.25rem;
+  padding: 1.25rem 2rem; /* Increased horizontal padding to give more room on edges */
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -753,6 +770,9 @@ header {
   min-height: 0;
   box-sizing: border-box;
   transition: padding var(--transition-normal);
+  
+  /* Add some spacing to allow messages to align properly */
+  position: relative;
 }
 
 /* Custom Scrollbar for Messages */
@@ -779,18 +799,70 @@ header {
   flex-direction: column;
   align-items: flex-start;
   margin-bottom: 1.5rem;
-  max-width: 85%;
+  max-width: 75%; /* Reduced from 85% to allow more room for positioning */
   animation: fadeIn 0.4s ease-out;
   width: auto;
   box-sizing: border-box;
   overflow: visible;
   height: auto;
+  
+  /* Make sure wrappers either float left or float right completely */
+  width: 100%;
+}
+
+/* Make copy button smaller and user messages aligned more to the right */
+.message-wrapper .copy-btn {
+  scale: 0.85;
+  margin-top: 0.2rem;
+}
+
+/* Adjust alignment for user messages specifically */
+.message-wrapper.user-wrapper .message.user {
+  margin-right: 0; /* Remove the right margin to align properly with copy button */
+  width: auto; /* Let the message take only as much width as needed */
+}
+
+/* Additional user message wrapper styling for proper alignment */
+.message-wrapper.user-wrapper {
+  max-width: 85%; /* Allow for more room on the right */
+  margin-left: auto; /* Push to the right edge */
+  padding-right: 0; /* Ensure no padding interferes with right alignment */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Ensures both message and button align to the right edge */
+}
+
+/* Add specific styling for user message wrappers to push them further right */
+.message-wrapper:has(.message.user) {
+  align-self: flex-end;
+  margin-left: auto;
+  margin-right: 0;
+  width: auto;
+}
+
+/* Fallback for browsers that don't support :has selector */
+.message-wrapper.user-wrapper {
+  align-self: flex-end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Align child elements to the right edge */
+  margin-left: auto;
+  margin-right: 0;
+  width: 100%; /* Take full width of container to enable proper right alignment */
+}
+
+/* Make sure copy button aligns properly with pushed-right messages */
+.message-wrapper:has(.message.user) .copy-btn {
+  margin-right: 0; /* Remove margin to perfectly align with message */
+  align-self: flex-end; /* Ensure button aligns to the right */
 }
 
 .message-wrapper .message.user { 
   align-self: flex-end; 
   animation: slideLeft 0.5s ease-out;
   margin-left: auto;
+  margin-right: 0; /* Ensure it stays at the very right */
+  max-width: 90%; /* Allow user messages to take up more of their container */
 }
 
 .message-wrapper .message.bot { 
@@ -800,8 +872,8 @@ header {
 
 .message-wrapper .copy-btn { 
   align-self: flex-start; 
-  opacity: 0;
-  transform: translateY(10px);
+  opacity: 0.7;
+  transform: translateY(0);
   transition: all 0.3s ease;
 }
 
@@ -811,7 +883,21 @@ header {
 }
 
 .message-wrapper .message.user + .copy-btn { 
-  align-self: flex-end; 
+  align-self: flex-end;
+  margin-right: 0; /* Ensure perfect alignment with user message */
+}
+
+/* Media query for mobile devices */
+@media (max-width: 768px) {
+  .message-wrapper .copy-btn {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Ensure user message copy buttons stay aligned on mobile */
+  .message-wrapper .message.user + .copy-btn {
+    margin-right: 0;
+  }
 }
 
 .message {
@@ -825,7 +911,6 @@ header {
   transition: all var(--transition-normal);
   word-wrap: break-word;
   word-break: break-word;
-  white-space: pre-wrap;
   overflow-wrap: break-word;
   width: auto;
   height: auto;
@@ -982,8 +1067,8 @@ header {
   color: var(--text-primary);
   border: 1px solid var(--surface-border);
   border-radius: var(--border-radius-md);
-  padding: 0.6rem 1.2rem;
-  font-size: 0.9rem;
+  padding: 0.4rem 0.9rem; /* Smaller padding */
+  font-size: 0.85rem; /* Smaller font size */
   cursor: pointer;
   transition: all var(--transition-normal);
   backdrop-filter: blur(8px);
@@ -1025,6 +1110,65 @@ header {
 .copy-btn:hover::before {
   left: 110%;
   opacity: 1;
+}
+
+/* Mobile-friendly copy button styles */
+@media (max-width: 768px) {
+  .copy-btn {
+    padding: 0.5rem 1rem; /* Smaller but still touch-friendly */
+    font-size: 0.9rem;
+    margin-top: 0.4rem;
+    margin-bottom: 0.4rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    border-width: 1px;
+  }
+  
+  .message-wrapper {
+    max-width: 95%; /* Allow messages to take up more width on mobile */
+  }
+  
+  /* Add subtle pulsing animation to make copy button more noticeable */
+  .copy-btn {
+    animation: subtle-pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes subtle-pulse {
+    0%, 100% { opacity: 0.9; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+}
+
+/* Touch device specific styles */
+.touch-device .message-wrapper .copy-btn {
+  opacity: 1;
+  transform: translateY(0);
+  padding: 0.5rem 1rem; /* Smaller padding for touch devices */
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+  border-width: 1px;
+}
+
+/* Ensure user message copy buttons align properly on touch devices */
+.touch-device .message-wrapper .message.user + .copy-btn {
+  margin-right: 0; /* Ensure alignment with the user message */
+}
+
+/* Show a subtle indicator on touch devices to highlight that the button is interactive */
+.touch-device .copy-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+  pointer-events: none;
+  animation: touch-pulse 2s infinite ease-in-out;
+}
+
+@keyframes touch-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
 
 /* Date Separator */
@@ -1440,44 +1584,67 @@ pre {
   color: #d1d5db;
   padding: 1.25rem;
   border-radius: var(--border-radius-md);
-  overflow-x: auto;
+  overflow: auto !important; /* Force overall scrollbar to appear */
+  overflow-x: scroll !important; /* Force horizontal scrollbar to always appear */
+  overflow-y: auto !important; /* Show vertical scrollbar when needed */
   font-family: 'Fira Code', 'Courier New', monospace;
   margin: 1.25rem 0;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
   position: relative;
   border: 1px solid rgba(99, 102, 241, 0.15);
+  animation: fadeIn 0.6s ease-out;
+  max-width: 100%;
+  max-height: 500px; /* Limit vertical height */
+  white-space: pre !important; /* Preserve whitespace and prevent line wrapping */
+  display: block !important; /* Ensure proper display */
+  max-height: 500px; /* Limit height and enable vertical scrolling if needed */
+  width: auto; /* Ensure the width is based on content */
+  display: block !important; /* Ensure block display */
 }
 
-pre::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: var(--gradient);
-  opacity: 0.7;
+/* Specific styles for code block scrollbars */
+pre::-webkit-scrollbar {
+  width: 12px;
+  height: 12px; /* Taller for horizontal scrollbar */
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
-code {
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.9rem;
-  color: var(--accent-light);
-  background-color: rgba(99, 102, 241, 0.1);
-  padding: 0.2rem 0.4rem;
+pre::-webkit-scrollbar-track {
+  background: rgba(23, 28, 44, 0.6); /* Slightly visible track */
   border-radius: 4px;
-  border: 1px solid rgba(99, 102, 241, 0.1);
-  transition: all var(--transition-normal);
 }
 
-pre code {
-  display: block;
-  background-color: inherit;
-  color: inherit;
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  line-height: 1.6;
+pre::-webkit-scrollbar-thumb {
+  background-color: var(--accent);
+  border-radius: var(--border-radius-full);
+  border: 2px solid #171c2c;
+  min-height: 30px; /* Ensure thumb is visible */
+  min-width: 30px; /* Ensure horizontal thumb is visible */
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent-light);
+  cursor: grab !important;
+}
+
+pre::-webkit-scrollbar-corner {
+  background-color: #171c2c;
+}
+
+/* Ensure Firefox scrollbars work properly too */
+pre {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) #171c2c;
+}
+
+/* Fix code block scrolling on touch devices */
+@media (pointer: coarse) {
+  pre {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    max-width: 100% !important;
+  }
 }
 
 /* Code language badge */
@@ -1494,36 +1661,10 @@ pre::after {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 600;
-}
-
-/* Code tag separators styling */
-.message code:not(pre code)::before,
-.message code:not(pre code)::after {
-  content: '`';
-  opacity: 0.7;
-  color: var(--accent);
-  font-weight: 700;
-  text-shadow: 0 0 5px rgba(99, 102, 241, 0.3);
-  margin: 0 0.1rem;
-}
-
-.message code:not(pre code):hover {
-  background-color: rgba(99, 102, 241, 0.2);
-  color: var(--accent-light);
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.2);
-  transform: translateY(-1px);
-  cursor: default;
-}
-
-/* Line numbers styling */
-.line-numbers .line-numbers-rows {
-  border-right: 1px solid rgba(99, 102, 241, 0.3);
-  padding-right: 0.75rem;
-}
-
-.line-numbers-rows > span:before {
-  color: rgba(255, 255, 255, 0.4);
-  font-weight: 400;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 5; /* Ensure it's above code content */
+  opacity: 1 !important; /* Force visibility */
+  display: block !important; /* Ensure it's always visible */
 }
 
 /* Special styling for different language types */
@@ -1556,7 +1697,8 @@ pre[data-language="css"]::after {
 }
 
 pre[data-language="bash"]::after,
-pre[data-language="shell"]::after {
+pre[data-language="shell"]::after,
+pre[data-language="sh"]::after {
   background: #3e3e3e;
   color: #89e051;
 }
@@ -1566,29 +1708,238 @@ pre[data-language="json"]::after {
   color: #8bc34a;
 }
 
-/* Add animation to code blocks */
-pre {
-  animation: fadeIn 0.6s ease-out;
+/* Additional languages */
+pre[data-language="java"]::after {
+  background: #b07219;
+  color: white;
 }
 
-/* Code block highlight effect */
-pre::before {
-  animation: gradientShift 6s linear infinite;
-  background-size: 200% 100%;
-  background-image: linear-gradient(
-    to right,
-    var(--accent),
-    var(--accent-light),
-    var(--accent-dark),
-    var(--accent)
-  );
+pre[data-language="c"]::after {
+  background: #555555;
+  color: white;
 }
 
-/* Code block hover effects */
-pre:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
+pre[data-language="cpp"]::after,
+pre[data-language="c++"]::after {
+  background: #f34b7d;
+  color: white;
+}
+
+pre[data-language="csharp"]::after,
+pre[data-language="c#"]::after {
+  background: #178600;
+  color: white;
+}
+
+pre[data-language="php"]::after {
+  background: #4F5D95;
+  color: white;
+}
+
+pre[data-language="ruby"]::after {
+  background: #CC342D;
+  color: white;
+}
+
+pre[data-language="swift"]::after {
+  background: #F05138;
+  color: white;
+}
+
+pre[data-language="kotlin"]::after {
+  background: #A97BFF;
+  color: white;
+}
+
+pre[data-language="go"]::after,
+pre[data-language="golang"]::after {
+  background: #00ADD8;
+  color: white;
+}
+
+pre[data-language="rust"]::after {
+  background: #DEA584;
+  color: #000;
+}
+
+pre[data-language="sql"]::after {
+  background: #e38c00;
+  color: white;
+}
+
+pre[data-language="xml"]::after {
+  background: #0060ac;
+  color: white;
+}
+
+pre[data-language="yaml"]::after,
+pre[data-language="yml"]::after {
+  background: #cb171e;
+  color: white;
+}
+
+pre[data-language="markdown"]::after,
+pre[data-language="md"]::after {
+  background: #083fa1;
+  color: white;
+}
+
+pre[data-language="dockerfile"]::after {
+  background: #384d54;
+  color: #0db7ed;
+}
+
+pre[data-language="r"]::after {
+  background: #198CE7;
+  color: white;
+}
+
+pre[data-language="perl"]::after {
+  background: #0298c3;
+  color: white;
+}
+
+pre[data-language="haskell"]::after,
+pre[data-language="hs"]::after {
+  background: #5e5086;
+  color: white;
+}
+
+pre[data-language="scala"]::after {
+  background: #c22d40;
+  color: white;
+}
+
+pre[data-language="lua"]::after {
+  background: #000080;
+  color: white;
+}
+
+pre[data-language="julia"]::after {
+  background: #a270ba;
+  color: white;
+}
+
+pre[data-language="elixir"]::after {
+  background: #6e4a7e;
+  color: white;
+}
+
+pre[data-language="clojure"]::after {
+  background: #db5855;
+  color: white;
+}
+
+pre[data-language="erlang"]::after {
+  background: #B83998;
+  color: white;
+}
+
+pre[data-language="dart"]::after {
+  background: #00B4AB;
+  color: white;
+}
+
+pre[data-language="powershell"]::after,
+pre[data-language="ps"]::after {
+  background: #012456;
+  color: #00FFFF;
+}
+
+/* New languages added */
+pre[data-language="groovy"]::after {
+  background: #4298b8;
+  color: white;
+}
+
+pre[data-language="f#"]::after,
+pre[data-language="fsharp"]::after {
+  background: #378BBA;
+  color: white;
+}
+
+pre[data-language="tcl"]::after {
+  background: #e4cc98;
+  color: #111;
+}
+
+pre[data-language="ocaml"]::after {
+  background: #F19DCD;
+  color: #111;
+}
+
+pre[data-language="crystal"]::after {
+  background: #000000;
+  color: #FFFFFF;
+}
+
+pre[data-language="smalltalk"]::after {
+  background: #596706;
+  color: white;
+}
+
+pre[data-language="nim"]::after {
+  background: #FFE953;
+  color: #111;
+}
+
+pre[data-language="ada"]::after {
+  background: #02f88c;
+  color: #111;
+}
+
+pre[data-language="delphi"]::after,
+pre[data-language="pascal"]::after {
+  background: #E62431;
+  color: white;
+}
+
+pre[data-language="apex"]::after {
+  background: #1797c0;
+  color: white;
+}
+
+pre[data-language="assembly"]::after,
+pre[data-language="asm"]::after {
+  background: #6E4C13;
+  color: white;
+}
+
+pre[data-language="actionscript"]::after {
+  background: #882B0F;
+  color: white;
+}
+
+pre[data-language="coffeescript"]::after {
+  background: #244776;
+  color: white;
+}
+
+pre[data-language="reasonml"]::after {
+  background: #ff5740;
+  color: white;
+}
+
+pre[data-language="hack"]::after {
+  background: #878787;
+  color: white;
+}
+
+pre[data-language="scheme"]::after {
+  background: #1e4aec;
+  color: white;
+}
+
+pre[data-language="vb"]::after,
+pre[data-language="visual basic"]::after {
+  background: #945db7;
+  color: white;
+}
+
+pre[data-language="objective-c"]::after,
+pre[data-language="objc"]::after {
+  background: #438eff;
+  color: white;
 }
 
 /* Code block copy button */
@@ -1597,59 +1948,81 @@ pre:hover {
   top: 8px !important;
   right: 45px !important; /* Position to the left of the language badge */
   padding: 0.35rem 0.6rem !important;
-  background: rgba(99, 102, 241, 0.2) !important;
-  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  background: rgba(99, 102, 241, 0.3) !important;
+  border: 1px solid rgba(99, 102, 241, 0.4) !important;
   border-radius: var(--border-radius-sm) !important;
   font-size: 0.75rem !important;
   color: var(--text-primary) !important;
-  opacity: 0 !important;
+  opacity: 1 !important; /* Always visible */
   transition: all var(--transition-normal) !important;
-  box-shadow: none !important;
-}
-
-pre:hover .code-copy-btn {
-  opacity: 1 !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+  z-index: 10 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
 }
 
 .code-copy-btn:hover {
-  background: rgba(99, 102, 241, 0.4) !important;
+  background: rgba(99, 102, 241, 0.6) !important;
   transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3) !important;
 }
 
-/* Scrollbar Styles */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb {
-  background-color: #444654;
-  border-radius: 8px;
-}
-::-webkit-scrollbar-thumb:hover { background-color: #10a37f; }
-
-/* Responsive Styles */
-@media (max-width: 480px) {
-  #sidebar { width: 200px; }
-  #chat-container { padding: 1rem; max-width: 100%; }
-  button { font-size: 0.9rem; padding: 0.5rem 1rem; }
-  #messages { padding: 0.5rem; }
+.code-copy-btn i {
+  margin-right: 4px !important;
 }
 
-@media (max-width: 768px) {
-  .sidebar-hidden + #main-content #chat-container {
-    max-width: 100%;
+/* Special styles for code elements */
+pre code {
+  font-family: 'Fira Code', 'Courier New', monospace;
+  display: inline-block;
+  min-width: 100%; /* Ensure code takes at least full width of pre tag */
+  white-space: pre !important; /* Preserve whitespace */
+  word-wrap: normal; /* Don't wrap words */
+  tab-size: 2; /* Set tab width */
+  -moz-tab-size: 2;
+}
+
+/* Fix for Firefox scrollbars */
+@-moz-document url-prefix() {
+  pre {
+    scrollbar-width: auto; /* Show scrollbars in Firefox */
+    scrollbar-color: var(--accent) rgba(23, 28, 44, 0.6);
   }
 }
 
-@media (min-width: 1024px) {
-  .sidebar-hidden + #main-content #chat-container {
-    max-width: calc(100% - 2rem);
-    margin: 0 auto;
-  }
+/* Style horizontal scrollbar hint arrow */
+pre::before {
+  content: '';
+  display: none; /* Hidden by default */
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%236366f1' viewBox='0 0 24 24'%3E%3Cpath d='M17 8l-1.41 1.41L17.17 11H9v2h8.17l-1.58 1.58L17 16l4-4-4-4zM5 5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7v-2H5V5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0.7;
+  z-index: 10;
+  pointer-events: none;
 }
 
-/* When sidebar is hidden, allow chat container to expand */
-.sidebar-hidden + #main-content #chat-container {
-  max-width: 100%;
-  width: 100%;
-  margin: 0;
-  border-radius: 0;
-  transition: max-width var(--transition-normal), border-radius var(--transition-normal);
+/* Show scroll hint if content width exceeds container */
+pre.needs-scrollbar::before {
+  display: block;
+}
+
+/* Special class to force scrollbars for code blocks that need them */
+pre.needs-scrollbar {
+  overflow: auto !important;
+  overflow-x: scroll !important;
+  overflow-y: auto !important;
+  position: relative !important; 
+  white-space: pre !important;
+  max-width: 100% !important;
+  max-height: 500px !important;
+  display: block !important;
+  padding-bottom: 1.5rem !important; /* Extra padding to ensure content isn't cut off */
 }

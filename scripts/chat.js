@@ -70,8 +70,14 @@ export const addMessage = (role, content, skipHistory = false, messageId = null)
       ? marked.parse(content)
       : content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+  // Add user-wrapper class to message wrappers containing user messages for better positioning
+  const wrapperClassList = ['message-wrapper'];
+  if (role === 'user') {
+    wrapperClassList.push('user-wrapper');
+  }
+
   const messageWrapper = createElement('div', {
-    classList: ['message-wrapper'],
+    classList: wrapperClassList,
     dataset: { messageId },
     innerHTML: `<div class="message ${role}">${escapedContent}</div>`,
   });
@@ -81,13 +87,34 @@ export const addMessage = (role, content, skipHistory = false, messageId = null)
     pre.classList.add('line-numbers');
     const codeElement = pre.querySelector('code');
     if (codeElement) {
-      const codeClass = Array.from(codeElement.classList).find(cls => cls.startsWith('language-'));
+      // Try to find language class
+      const codeClass = Array.from(codeElement.classList || []).find(cls => cls.startsWith('language-'));
+      let language = 'code';
+      
       if (codeClass) {
-        const language = codeClass.replace('language-', '');
-        pre.setAttribute('data-language', language);
+        language = codeClass.replace('language-', '');
       } else {
-        pre.setAttribute('data-language', 'code');
+        // Try to detect language from content if no class is present
+        const codeText = codeElement.textContent || '';
+        if (codeText.includes('function') && codeText.includes('{')) language = 'javascript';
+        else if (codeText.includes('def ') && codeText.includes(':')) language = 'python';
+        else if (codeText.includes('<html>') || codeText.includes('</div>')) language = 'html';
+        else if (codeText.includes('@media') || codeText.includes('{')) language = 'css';
+        else if (codeText.includes('import ') && codeText.includes(' from ')) language = 'javascript';
+        else if (codeText.startsWith('<?php')) language = 'php';
+        // More detection rules can be added here
       }
+      
+      // Set the language attribute and ensure it's visible
+      pre.setAttribute('data-language', language);
+      
+      // Ensure Prism highlights the code
+      if (window.Prism && !codeClass) {
+        codeElement.classList.add(`language-${language}`);
+        try { window.Prism.highlightElement(codeElement); } catch (e) {}
+      }
+    } else {
+      pre.setAttribute('data-language', 'code');
     }
   });
 
@@ -95,7 +122,43 @@ export const addMessage = (role, content, skipHistory = false, messageId = null)
   messagesDiv.appendChild(messageWrapper);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-  Prism.highlightAll();
+  // Ensure code highlighting works properly
+  setTimeout(() => {
+    try {
+      // Properly initialize Prism only on elements that haven't been highlighted
+      if (window.Prism) {
+        // Only highlight elements that haven't been highlighted yet
+        messageWrapper.querySelectorAll('pre:not([data-highlighted]) code').forEach(code => {
+          Prism.highlightElement(code);
+          code.parentElement.setAttribute('data-highlighted', 'true');
+        });
+        
+        // Make sure language badges are visible
+        messageWrapper.querySelectorAll('pre').forEach(pre => {
+          // Skip if already properly styled
+          if (pre.hasAttribute('data-processed')) return;
+          
+          // Mark as processed to avoid redundant operations
+          pre.setAttribute('data-processed', 'true');
+          
+          // Make sure code blocks have proper overflow settings
+          pre.style.overflow = 'auto';
+          pre.style.overflowX = 'auto';
+          pre.style.overflowY = 'auto';
+          pre.style.maxHeight = '500px';
+          pre.style.display = 'block';
+          
+          // Force language badge to be visible if it has a data-language attribute
+          if (pre.getAttribute('data-language')) {
+            const lang = pre.getAttribute('data-language');
+            pre.setAttribute('data-language', lang); // Re-apply to trigger styles
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Error initializing syntax highlighting:', e);
+    }
+  }, 50);
 
   if (!skipHistory) {
     chatHistories[activeChatId].messages.push({ role, content });
@@ -104,17 +167,100 @@ export const addMessage = (role, content, skipHistory = false, messageId = null)
 };
 
 const addCopyButtons = (messageWrapper) => {
+  // Add copy button for the entire message
   const wrapperCopyButton = createCopyButton(() => {
     const messageElement = messageWrapper.querySelector('.message');
     return messageElement ? messageElement.textContent : '';
   });
   messageWrapper.appendChild(wrapperCopyButton);
 
-  messageWrapper.querySelectorAll('pre').forEach((element) => {
-    const copyButton = createCopyButton(() => element.textContent);
+  // Add copy buttons to each code block
+  messageWrapper.querySelectorAll('pre:not([data-has-copy-btn])').forEach((element) => {
+    // Mark this pre element as having a copy button to avoid duplicates
+    element.setAttribute('data-has-copy-btn', 'true');
+    
+    // Make sure each code block has proper styling applied directly
     element.style.position = 'relative';
+    element.style.overflow = 'auto';
+    element.style.overflowX = 'auto';
+    element.style.overflowY = 'auto';
+    element.style.maxWidth = '100%';
+    element.style.maxHeight = '500px';
+    element.style.whiteSpace = 'pre';
+    element.style.display = 'block';
+    
+    // Make sure language is detected and applied
+    const codeElement = element.querySelector('code');
+    if (codeElement) {
+      // Try to find language class
+      const codeClass = Array.from(codeElement.classList || []).find(cls => cls.startsWith('language-'));
+      let language = 'code';
+      
+      if (codeClass) {
+        language = codeClass.replace('language-', '');
+      } else {
+        // Try to detect language from content
+        const codeText = codeElement.textContent || '';
+        if (codeText.includes('function') && codeText.includes('{')) language = 'javascript';
+        else if (codeText.includes('def ') && codeText.includes(':')) language = 'python';
+        else if (codeText.includes('<html>') || codeText.includes('</div>')) language = 'html';
+        else if (codeText.includes('@media') || codeText.includes('{')) language = 'css';
+        else if (codeText.match(/print\s*\(/)) language = element.textContent.includes('import') ? 'python' : 'javascript';
+        else if (codeText.includes('cat(')) language = 'r';
+        else if (codeText.match(/puts(tln)?\s*["']/)) language = 'ruby';
+      }
+      
+      // Force set the language attribute directly on the pre element
+      element.setAttribute('data-language', language);
+    } else {
+      element.setAttribute('data-language', 'code');
+    }
+    
+    // Create copy button with proper function
+    const copyButton = document.createElement('button');
     copyButton.classList.add('code-copy-btn');
     copyButton.title = "Copy code";
+    copyButton.innerHTML = '<i class="fa-regular fa-copy"></i>';
+    
+    // Remove any previous copy button to avoid duplicates
+    const existingBtn = element.querySelector('.code-copy-btn');
+    if (existingBtn) element.removeChild(existingBtn);
+    
+    // Add click handler
+    copyButton.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      try {
+        const textToCopy = codeElement ? codeElement.textContent : element.textContent;
+        await navigator.clipboard.writeText(textToCopy);
+        
+        // Visual confirmation
+        copyButton.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        copyButton.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+        
+        setTimeout(() => {
+          copyButton.innerHTML = '<i class="fa-regular fa-copy"></i>';
+          copyButton.style.backgroundColor = '';
+        }, 2000);
+      } catch (err) {
+        console.error('Copy failed:', err);
+        // Use fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = codeElement ? codeElement.textContent : element.textContent;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        copyButton.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        setTimeout(() => {
+          copyButton.innerHTML = '<i class="fa-regular fa-copy"></i>';
+        }, 2000);
+      }
+    });
+    
+    // Add the button
     element.appendChild(copyButton);
   });
 };
@@ -124,12 +270,63 @@ const createCopyButton = (getText) => {
     classList: ['copy-btn'],
     innerHTML: '<i class="fa-regular fa-copy"></i>',
   });
-  button.addEventListener('click', () => {
-    navigator.clipboard.writeText(getText()).then(() => {
-      button.textContent = 'Copied!';
-      setTimeout(() => (button.innerHTML = '<i class="fa-regular fa-copy"></i>'), 2000);
-    });
+  button.addEventListener('click', async (e) => {
+    // Prevent default to avoid issues
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      const text = getText();
+      // Try to use the modern clipboard API
+      await navigator.clipboard.writeText(text);
+      
+      // Visual confirmation
+      button.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+      button.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+      button.style.borderColor = 'rgba(16, 185, 129, 0.6)';
+      
+      // Reset after a delay
+      setTimeout(() => {
+        button.innerHTML = '<i class="fa-regular fa-copy"></i>';
+        button.style.backgroundColor = '';
+        button.style.borderColor = '';
+      }, 2000);
+      
+    } catch (err) {
+      // Fallback for browsers that don't support clipboard API
+      console.error('Copy failed:', err);
+      
+      // Try fallback method
+      const textArea = document.createElement('textarea');
+      textArea.value = getText();
+      textArea.style.position = 'fixed';
+      textArea.style.top = '0';
+      textArea.style.left = '0';
+      textArea.style.width = '2em';
+      textArea.style.height = '2em';
+      textArea.style.opacity = '0';
+      
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        document.execCommand('copy');
+        button.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+      } catch (err) {
+        console.error('Fallback copy failed:', err);
+        button.innerHTML = '<i class="fa-solid fa-times"></i> Failed';
+      }
+      
+      setTimeout(() => {
+        button.innerHTML = '<i class="fa-regular fa-copy"></i>';
+      }, 2000);
+      document.body.removeChild(textArea);
+    }
+    
+    return false;
   });
+
   return button;
 };
 
@@ -237,8 +434,21 @@ export const addEllipsisMenu = (ellipsisBtn) => {
     document.body.appendChild(menu);
 
     const rect = ellipsisBtn.getBoundingClientRect();
-    menu.style.top = `${rect.bottom + window.scrollY}px`;
-    menu.style.left = `${rect.left + window.scrollX}px`;
+    
+    // Calculate if menu would be below viewport
+    const menuHeight = 150; // Approximate menu height
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - rect.bottom;
+    
+    // Position menu above button if not enough space below
+    if (spaceBelow < menuHeight) {
+      menu.style.top = `${rect.top - menuHeight + window.scrollY}px`;
+      menu.style.left = `${rect.left + window.scrollX}px`;
+      menu.classList.add('menu-above');
+    } else {
+      menu.style.top = `${rect.bottom + window.scrollY}px`;
+      menu.style.left = `${rect.left + window.scrollX}px`;
+    }
 
     document.addEventListener(
       'click',

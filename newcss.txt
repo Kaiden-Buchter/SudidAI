@@ -297,6 +297,7 @@ body::after {
   box-shadow: 0 0 10px var(--accent-glow);
   left: 0;
   z-index: 100; /* Ensure it's above the chat container */
+  position: fixed;
 }
 
 /* Sidebar */
@@ -332,6 +333,11 @@ body::after {
   margin-left: 0;
   width: 100%;
   padding: 0; /* Remove padding entirely for full-width experience */
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100vh; /* Set explicit height to fill the viewport */
+  overflow: hidden;
 }
 
 #sidebar::after {
@@ -438,7 +444,7 @@ body::after {
   content: '';
   position: absolute;
   top: -6px;
-  right: 10px;
+  left: 10px; /* Changed from right to left to position under the button */
   width: 12px;
   height: 12px;
   background-color: var(--glass-bg);
@@ -474,6 +480,13 @@ body::after {
 
 .menu-item:active {
   transform: translateX(1px);
+}
+
+/* Menu positioned above the button */
+.menu-above::before {
+  top: auto;
+  bottom: -6px;
+  transform: rotate(225deg);
 }
 
 .clickable {
@@ -550,6 +563,7 @@ body::after {
   position: relative;
   box-sizing: border-box;
   display: flex;
+  min-height: 90px; /* Ensure minimum height for chat items */
 }
 
 #chat-list li::before {
@@ -586,6 +600,9 @@ body::after {
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
+  min-width: 0; /* Prevent text from causing overflow */
+  font-size: 1rem; /* Ensure text isn't too small */
+  line-height: 1.5; /* Better readability */
 }
 
 /* Adjust chat button so it doesn't cause overflow */
@@ -667,7 +684,7 @@ body::after {
   padding: 1.5rem;
   position: relative;
   background-color: var(--bg-main);
-  transition: width var(--transition-normal), margin-left var(--transition-normal);
+  transition: width var(--transition-normal), margin-left var(--transition-normal), position var(--transition-normal), left var(--transition-normal);
 }
 
 header {
@@ -742,7 +759,7 @@ header {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1.25rem;
+  padding: 1.25rem 2rem; /* Increased horizontal padding to give more room on edges */
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -753,6 +770,9 @@ header {
   min-height: 0;
   box-sizing: border-box;
   transition: padding var(--transition-normal);
+  
+  /* Add some spacing to allow messages to align properly */
+  position: relative;
 }
 
 /* Custom Scrollbar for Messages */
@@ -779,18 +799,70 @@ header {
   flex-direction: column;
   align-items: flex-start;
   margin-bottom: 1.5rem;
-  max-width: 85%;
+  max-width: 75%; /* Reduced from 85% to allow more room for positioning */
   animation: fadeIn 0.4s ease-out;
   width: auto;
   box-sizing: border-box;
   overflow: visible;
   height: auto;
+  
+  /* Make sure wrappers either float left or float right completely */
+  width: 100%;
+}
+
+/* Make copy button smaller and user messages aligned more to the right */
+.message-wrapper .copy-btn {
+  scale: 0.85;
+  margin-top: 0.2rem;
+}
+
+/* Adjust alignment for user messages specifically */
+.message-wrapper.user-wrapper .message.user {
+  margin-right: 0; /* Remove the right margin to align properly with copy button */
+  width: auto; /* Let the message take only as much width as needed */
+}
+
+/* Additional user message wrapper styling for proper alignment */
+.message-wrapper.user-wrapper {
+  max-width: 85%; /* Allow for more room on the right */
+  margin-left: auto; /* Push to the right edge */
+  padding-right: 0; /* Ensure no padding interferes with right alignment */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Ensures both message and button align to the right edge */
+}
+
+/* Add specific styling for user message wrappers to push them further right */
+.message-wrapper:has(.message.user) {
+  align-self: flex-end;
+  margin-left: auto;
+  margin-right: 0;
+  width: auto;
+}
+
+/* Fallback for browsers that don't support :has selector */
+.message-wrapper.user-wrapper {
+  align-self: flex-end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Align child elements to the right edge */
+  margin-left: auto;
+  margin-right: 0;
+  width: 100%; /* Take full width of container to enable proper right alignment */
+}
+
+/* Make sure copy button aligns properly with pushed-right messages */
+.message-wrapper:has(.message.user) .copy-btn {
+  margin-right: 0; /* Remove margin to perfectly align with message */
+  align-self: flex-end; /* Ensure button aligns to the right */
 }
 
 .message-wrapper .message.user { 
   align-self: flex-end; 
   animation: slideLeft 0.5s ease-out;
   margin-left: auto;
+  margin-right: 0; /* Ensure it stays at the very right */
+  max-width: 90%; /* Allow user messages to take up more of their container */
 }
 
 .message-wrapper .message.bot { 
@@ -800,8 +872,8 @@ header {
 
 .message-wrapper .copy-btn { 
   align-self: flex-start; 
-  opacity: 0;
-  transform: translateY(10px);
+  opacity: 0.7;
+  transform: translateY(0);
   transition: all 0.3s ease;
 }
 
@@ -811,7 +883,21 @@ header {
 }
 
 .message-wrapper .message.user + .copy-btn { 
-  align-self: flex-end; 
+  align-self: flex-end;
+  margin-right: 0; /* Ensure perfect alignment with user message */
+}
+
+/* Media query for mobile devices */
+@media (max-width: 768px) {
+  .message-wrapper .copy-btn {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Ensure user message copy buttons stay aligned on mobile */
+  .message-wrapper .message.user + .copy-btn {
+    margin-right: 0;
+  }
 }
 
 .message {
@@ -825,7 +911,6 @@ header {
   transition: all var(--transition-normal);
   word-wrap: break-word;
   word-break: break-word;
-  white-space: pre-wrap;
   overflow-wrap: break-word;
   width: auto;
   height: auto;
@@ -982,8 +1067,8 @@ header {
   color: var(--text-primary);
   border: 1px solid var(--surface-border);
   border-radius: var(--border-radius-md);
-  padding: 0.6rem 1.2rem;
-  font-size: 0.9rem;
+  padding: 0.4rem 0.9rem; /* Smaller padding */
+  font-size: 0.85rem; /* Smaller font size */
   cursor: pointer;
   transition: all var(--transition-normal);
   backdrop-filter: blur(8px);
@@ -1025,6 +1110,65 @@ header {
 .copy-btn:hover::before {
   left: 110%;
   opacity: 1;
+}
+
+/* Mobile-friendly copy button styles */
+@media (max-width: 768px) {
+  .copy-btn {
+    padding: 0.5rem 1rem; /* Smaller but still touch-friendly */
+    font-size: 0.9rem;
+    margin-top: 0.4rem;
+    margin-bottom: 0.4rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    border-width: 1px;
+  }
+  
+  .message-wrapper {
+    max-width: 95%; /* Allow messages to take up more width on mobile */
+  }
+  
+  /* Add subtle pulsing animation to make copy button more noticeable */
+  .copy-btn {
+    animation: subtle-pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes subtle-pulse {
+    0%, 100% { opacity: 0.9; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+}
+
+/* Touch device specific styles */
+.touch-device .message-wrapper .copy-btn {
+  opacity: 1;
+  transform: translateY(0);
+  padding: 0.5rem 1rem; /* Smaller padding for touch devices */
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+  border-width: 1px;
+}
+
+/* Ensure user message copy buttons align properly on touch devices */
+.touch-device .message-wrapper .message.user + .copy-btn {
+  margin-right: 0; /* Ensure alignment with the user message */
+}
+
+/* Show a subtle indicator on touch devices to highlight that the button is interactive */
+.touch-device .copy-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+  pointer-events: none;
+  animation: touch-pulse 2s infinite ease-in-out;
+}
+
+@keyframes touch-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
 
 /* Date Separator */
@@ -1647,9 +1791,35 @@ pre:hover .code-copy-btn {
 
 /* When sidebar is hidden, allow chat container to expand */
 .sidebar-hidden + #main-content #chat-container {
-  max-width: 100%;
-  width: 100%;
-  margin: 0;
-  border-radius: 0;
+  max-width: 100% !important;
+  width: 100% !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  left: 0 !important;
   transition: max-width var(--transition-normal), border-radius var(--transition-normal);
+  position: relative !important;
+}
+
+/* Ensure messages container has proper height when sidebar is hidden */
+.sidebar-hidden + #main-content #messages {
+  height: calc(100vh - 80px) !important; /* Adjust this value based on the height of the input area */
+  max-height: none !important;
+  overflow-y: auto !important;
+}
+
+/* Position chat form at the bottom when sidebar is hidden */
+.sidebar-hidden + #main-content #chat-form {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background-color: var(--bg-main);
+  border-top: 1px solid var(--surface-border);
+  border-radius: 0;
+  margin-top: 0;
+  z-index: 20;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
 }

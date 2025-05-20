@@ -19,12 +19,18 @@ export const toggleSidebar = () => {
     // Make sure main content expands
     mainContent.style.width = '100%';
     mainContent.style.marginLeft = '0';
+    mainContent.style.left = '0';
+    mainContent.style.position = 'absolute';
+    mainContent.style.height = '100vh';
+    mainContent.style.overflow = 'hidden';
     // Allow chat container to take full space
     chatContainer.style.maxWidth = '100%';
     chatContainer.style.width = '100%';
     chatContainer.style.margin = '0';
     chatContainer.style.borderRadius = '0';
     chatContainer.style.height = '100vh';
+    chatContainer.style.maxHeight = '100vh';
+    chatContainer.style.left = '0';
     mainContent.style.padding = '0';
   } else {
     // Change back to bars icon when sidebar is visible
@@ -35,12 +41,19 @@ export const toggleSidebar = () => {
     mainContent.style.width = 'calc(100% - var(--sidebar-width))';
     mainContent.style.marginLeft = '';
     mainContent.style.padding = '1.5rem';
+    mainContent.style.position = 'relative';
+    mainContent.style.left = '';
+    mainContent.style.top = '';
+    mainContent.style.height = '';
+    mainContent.style.overflow = '';
     // Restore chat container original styling
     chatContainer.style.maxWidth = '1200px';
     chatContainer.style.width = '100%';
     chatContainer.style.margin = '0 auto';
     chatContainer.style.borderRadius = 'var(--border-radius-lg)';
     chatContainer.style.height = '100%';
+    chatContainer.style.maxHeight = '95vh';
+    chatContainer.style.left = '';
   }
 };
 
@@ -90,11 +103,37 @@ export const setupSettingsModal = () => {
 
   settingsLink.addEventListener('click', () => toggleModal(settingsModal, false, closeSettingsBtn));
   closeSettingsBtn.addEventListener('click', () => toggleModal(settingsModal, true, settingsLink));
+  
+  // Add ESC key handler to close the modal
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !settingsModal.classList.contains('hidden')) {
+      toggleModal(settingsModal, true, settingsLink);
+    }
+  });
 };
 
 const toggleModal = (modal, isHidden, focusElement) => {
   modal.classList.toggle('hidden', isHidden);
   modal.setAttribute('aria-hidden', isHidden.toString());
+  
+  // Ensure the modal is properly hidden/shown
+  if (isHidden) {
+    modal.style.display = 'none';
+  } else {
+    modal.style.display = 'flex';
+  }
+  
+  // Add event listener to close modal when clicking outside
+  if (!isHidden) {
+    const closeOnOutsideClick = (event) => {
+      if (event.target === modal) {
+        toggleModal(modal, true, focusElement);
+        document.removeEventListener('click', closeOnOutsideClick);
+      }
+    };
+    document.addEventListener('click', closeOnOutsideClick);
+  }
+  
   focusElement.focus();
 };
 
@@ -140,6 +179,33 @@ const createPasswordModal = (resolve) => {
   modal.appendChild(modalContent);
   return modal;
 };
+
+// Detect touch device and add class to body
+export const detectTouchDevice = () => {
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  
+  if (isTouchDevice) {
+    document.body.classList.add('touch-device');
+    
+    // Make copy buttons always visible on touch devices
+    const copyButtons = document.querySelectorAll('.copy-btn');
+    copyButtons.forEach(btn => {
+      btn.style.opacity = '1';
+      btn.style.transform = 'translateY(0)';
+    });
+  }
+  
+  // Apply user-wrapper class to any existing message wrappers with user messages
+  // This helps with right alignment in browsers that don't support :has selector
+  document.querySelectorAll('.message-wrapper').forEach(wrapper => {
+    const userMessage = wrapper.querySelector('.message.user');
+    if (userMessage) {
+      wrapper.classList.add('user-wrapper');
+    }
+  });
+};
+
+// Call this function when initializing the UI
 
 // Helper Function
 const createElement = (tag, options = {}) => {
