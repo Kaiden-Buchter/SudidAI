@@ -29,7 +29,7 @@ const createRequestBody = (currentChatId, userMessage) => ({
 
 const handleChatResponse = async (currentChatId, userMessage, thinkingMessageId) => {
   try {
-    const response = await fetch('https://chatgpt-worker.knbuchtyy879.workers.dev/api/chat', {
+    const response = await fetch('https://sudidai-backend.knbuchtyy879.workers.dev/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ export const ensureAuthenticated = async () => {
   if (!password) return false;
 
   try {
-    const response = await fetch('https://chatgpt-worker.knbuchtyy879.workers.dev/api/auth', {
+    const response = await fetch('https://sudidai-backend.knbuchtyy879.workers.dev/api/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password }),
