@@ -1584,9 +1584,9 @@ pre {
   color: #d1d5db;
   padding: 1.25rem;
   border-radius: var(--border-radius-md);
-  overflow: auto !important; /* Force overall scrollbar to appear */
-  overflow-x: scroll !important; /* Force horizontal scrollbar to always appear */
-  overflow-y: auto !important; /* Show vertical scrollbar when needed */
+  overflow: auto !important; /* Show scrollbars only when needed */
+  overflow-x: auto !important; /* Show horizontal scrollbar only when needed */
+  overflow-y: auto !important; /* Show vertical scrollbar only when needed */
   font-family: 'Fira Code', 'Courier New', monospace;
   margin: 1.25rem 0;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
@@ -1641,6 +1641,7 @@ pre {
 @media (pointer: coarse) {
   pre {
     -webkit-overflow-scrolling: touch;
+    overflow: auto !important;
     overflow-x: auto !important;
     overflow-y: auto !important;
     max-width: 100% !important;
@@ -1662,7 +1663,7 @@ pre::after {
   letter-spacing: 0.05em;
   font-weight: 600;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  z-index: 5; /* Ensure it's above code content */
+  z-index: 5; /* Ensure it's above code content but below copy button */
   opacity: 1 !important; /* Force visibility */
   display: block !important; /* Ensure it's always visible */
 }
@@ -1945,9 +1946,9 @@ pre[data-language="objc"]::after {
 /* Code block copy button */
 .code-copy-btn {
   position: absolute !important;
-  top: 8px !important;
-  right: 45px !important; /* Position to the left of the language badge */
-  padding: 0.35rem 0.6rem !important;
+  bottom: 5px !important;
+  right: 5px !important; /* Position in the top right corner */
+  padding: 0.35rem !important;
   background: rgba(99, 102, 241, 0.3) !important;
   border: 1px solid rgba(99, 102, 241, 0.4) !important;
   border-radius: var(--border-radius-sm) !important;
@@ -1965,12 +1966,12 @@ pre[data-language="objc"]::after {
 
 .code-copy-btn:hover {
   background: rgba(99, 102, 241, 0.6) !important;
-  transform: translateY(-2px) !important;
+  transform: translateY(-1px) !important;
   box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3) !important;
 }
 
 .code-copy-btn i {
-  margin-right: 4px !important;
+  margin-right: 0 !important;
 }
 
 /* Special styles for code elements */
@@ -2014,15 +2015,15 @@ pre.needs-scrollbar::before {
   display: block;
 }
 
-/* Special class to force scrollbars for code blocks that need them */
+/* Special class for code blocks that may need scrollbars */
 pre.needs-scrollbar {
   overflow: auto !important;
-  overflow-x: scroll !important;
+  overflow-x: auto !important; /* Show horizontal scrollbar only when needed */
   overflow-y: auto !important;
   position: relative !important; 
   white-space: pre !important;
   max-width: 100% !important;
   max-height: 500px !important;
   display: block !important;
-  padding-bottom: 1.5rem !important; /* Extra padding to ensure content isn't cut off */
+  padding-bottom: 1.25rem !important; /* Extra padding to ensure content isn't cut off */
 }

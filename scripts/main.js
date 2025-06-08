@@ -285,7 +285,7 @@ function ensureScrollbarsVisible() {
     const codeElement = pre.querySelector('code');
     
     // Explicitly set overflow properties with !important via CSS
-    pre.setAttribute('style', pre.getAttribute('style') + '; overflow: auto !important; overflow-x: scroll !important; overflow-y: auto !important;');
+    pre.setAttribute('style', pre.getAttribute('style') + '; overflow: auto !important; overflow-x: auto !important; overflow-y: auto !important;');
     
     // If content exceeds width or height, ensure scrollbars are visible
     const needsScroll = pre.scrollWidth > pre.clientWidth || pre.scrollHeight > pre.clientHeight;
