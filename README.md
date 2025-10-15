@@ -1,1 +1,1 @@
-# Sudid AI Frontend
+# SudidAI Frontend
