@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Check authentication first
   const isAuthenticated = await ensureAuthenticated();
   if (!isAuthenticated) {
-    alert('Access denied. Please refresh the page to try again.');
+    window.location.href = 'login.html';
     return;
   }
 
@@ -47,11 +47,24 @@ function initializeApp() {
   setupAutoSave();
   setupNewChatButton();
   setupSettingsModal();
+  setupLogoutButton();
   detectTouchDevice();
   
   // Setup sidebar toggle
   document.getElementById('sidebar-toggle')
     ?.addEventListener('click', toggleSidebar);
+}
+
+/**
+ * Setup logout button
+ */
+function setupLogoutButton() {
+  document.getElementById('logout-btn')?.addEventListener('click', () => {
+    if (confirm('Are you sure you want to logout?')) {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    }
+  });
 }
 
 /**

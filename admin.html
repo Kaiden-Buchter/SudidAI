@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Sudid AI</title>
+  <link rel="icon" type="image/icon" href="assets/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/admin.css">
+</head>
+<body>
+  <div id="admin-container">
+    <div id="admin-header">
+      <h1><i class="fa-solid fa-shield-halved"></i> Admin Panel</h1>
+      <div class="header-actions">
+        <span class="user-info" id="admin-name"></span>
+        <button class="chat-btn" onclick="window.location.href='index.html'">
+          <i class="fa-solid fa-comment"></i> Go to Chat
+        </button>
+        <button class="logout-btn" id="logout-btn">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h2><i class="fa-solid fa-user-plus"></i> Add New User</h2>
+      
+      <div id="success-message" class="success-message"></div>
+      <div id="error-message" class="error-message-admin"></div>
+      
+      <form class="add-user-form" id="add-user-form">
+        <input type="text" id="new-username" class="form-input" placeholder="Username" required autocomplete="username">
+        <input type="password" id="new-password" class="form-input" placeholder="Password" required autocomplete="new-password">
+        <button type="submit" class="add-btn">
+          <i class="fa-solid fa-plus"></i> Add User
+        </button>
+      </form>
+    </div>
+
+    <div class="admin-section">
+      <h2><i class="fa-solid fa-users"></i> User Management</h2>
+      
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="users-list">
+          <tr>
+            <td colspan="4" class="empty-state">
+              <i class="fa-solid fa-spinner fa-spin"></i> Loading users...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="scripts/admin.js"></script>
+</body>
+</html>

@@ -11,7 +11,7 @@
         script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; 
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
-        connect-src 'self' https://sudidai-backend.knbuchtyy879.workers.dev; 
+        connect-src 'self' https://api.sudid.org; 
         object-src 'none'; 
         upgrade-insecure-requests;">
   <title>Sudid</title>
@@ -20,7 +20,15 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=1.0">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/navigation.css">
+  <link rel="stylesheet" href="assets/css/sidebar.css">
+  <link rel="stylesheet" href="assets/css/messages.css">
+  <link rel="stylesheet" href="assets/css/input.css">
+  <link rel="stylesheet" href="assets/css/code.css">
+  <link rel="stylesheet" href="assets/css/modals.css">
+  <link rel="stylesheet" href="assets/css/utilities.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
 </head>
 <body>
   <div id="app">
@@ -41,6 +49,9 @@
         </button>
         <button id="settings-link" class="nav-btn" aria-label="Settings" title="Settings">
           <i class="fa-solid fa-gear"></i>
+        </button>
+        <button id="logout-btn" class="nav-btn" aria-label="Logout" title="Logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
         </button>
       </div>
     </nav>

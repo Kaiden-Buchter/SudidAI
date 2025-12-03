@@ -9,7 +9,7 @@ import { createShowPasswordPrompt } from './ui.js';
 
 // State management
 let isWaitingForResponse = false;
-const API_BASE_URL = 'https://sudidai-backend.knbuchtyy879.workers.dev/api';
+const API_BASE_URL = 'https://api.sudid.org/api';
 
 /**
  * Setup chat form event listeners
@@ -190,12 +190,16 @@ function getAuthToken() {
  * Ensure user is authenticated
  */
 export async function ensureAuthenticated() {
-  if (isTokenValid()) return true;
+  const token = localStorage.getItem('auth_token');
+  const expiration = localStorage.getItem('auth_expiration');
 
-  const password = await createShowPasswordPrompt();
-  if (!password) return false;
+  // Check if token exists and is valid
+  if (token && expiration && Date.now() < parseInt(expiration, 10)) {
+    return true;
+  }
 
-  return await authenticateUser(password);
+  // No valid token, redirect to login
+  return false;
 }
 
 /**
@@ -206,38 +210,4 @@ function isTokenValid() {
   const expiration = localStorage.getItem('auth_expiration');
 
   return token && expiration && Date.now() < parseInt(expiration, 10);
-}
-
-/**
- * Authenticate user with password
- */
-async function authenticateUser(password) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/auth`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
-    });
-
-    if (response.ok) {
-      const { token, expiration } = await response.json();
-      saveAuthToken(token, expiration);
-      return true;
-    }
-
-    alert('Invalid password. Please try again.');
-    return ensureAuthenticated();
-  } catch (error) {
-    console.error('Authentication error:', error);
-    alert('Authentication failed. Please try again later.');
-    return false;
-  }
-}
-
-/**
- * Save authentication token to storage
- */
-function saveAuthToken(token, expiration) {
-  localStorage.setItem('auth_token', token);
-  localStorage.setItem('auth_expiration', expiration);
 }

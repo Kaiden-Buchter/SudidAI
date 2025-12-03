@@ -1,0 +1,66 @@
+/* Code Blocks and Syntax Highlighting */
+
+pre {
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  overflow: auto;
+  max-height: 500px;
+  position: relative;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  margin: 1rem 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
+}
+
+pre::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 10px;
+}
+
+pre code {
+  color: #e5e7eb;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+pre::after {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: var(--accent);
+  color: white;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.code-copy-btn {
+  position: absolute !important;
+  bottom: 0.75rem !important;
+  right: 0.75rem !important;
+  background: rgba(124, 58, 237, 0.2) !important;
+  border: 1px solid rgba(124, 58, 237, 0.4) !important;
+  padding: 0.5rem 0.875rem !important;
+  border-radius: var(--radius) !important;
+  color: var(--text-primary) !important;
+  cursor: pointer !important;
+  font-size: 0.75rem !important;
+  transition: all var(--transition) !important;
+  z-index: 10 !important;
+}
+
+.code-copy-btn:hover {
+  background: rgba(124, 58, 237, 0.4) !important;
+  border-color: var(--accent) !important;
+}
