@@ -1,509 +1,679 @@
 // Constants
-const LOCAL_STORAGE_KEY = 'chatHistories';
-const ACTIVE_CHAT_KEY = 'activeChatId';
+const STORAGE_KEYS = {
+  CHATS: 'chatHistories',
+  ACTIVE_CHAT: 'activeChatId',
+};
 
 // State
-export const chatHistories = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || {};
+export const chatHistories = loadChatHistories();
 export let activeChatId = null;
 
-// Utility Functions
-const saveToLocalStorage = (key, value) => {
-  if (typeof value === 'string') {
-    localStorage.setItem(key, value);
-  } else {
-    localStorage.setItem(key, JSON.stringify(value));
-  }
-};
+/**
+ * Load chat histories from localStorage
+ */
+function loadChatHistories() {
+  const stored = localStorage.getItem(STORAGE_KEYS.CHATS);
+  return stored ? JSON.parse(stored) : {};
+}
 
-const createElement = (tag, options = {}) => {
-  const element = document.createElement(tag);
-  Object.entries(options).forEach(([key, value]) => {
-    if (key === 'classList') element.classList.add(...value);
-    else if (key === 'dataset') Object.assign(element.dataset, value);
-    else element[key] = value;
-  });
-  return element;
-};
-
-// Chat Management
-export const setActiveChatId = (chatId) => {
-  activeChatId = chatId;
-  saveToLocalStorage(ACTIVE_CHAT_KEY, activeChatId); 
-  document.dispatchEvent(new Event('activeChatChanged'));
-};
-
-export const saveChatsToLocalStorage = () => {
-  saveToLocalStorage(
-    LOCAL_STORAGE_KEY,
-    Object.fromEntries(
-      Object.entries(chatHistories).map(([chatId, chat]) => [
-        chatId,
-        {
-          ...chat,
-          messages: chat.messages.map(({ role, content, sender, text }) => ({
-            role: role || (sender === 'user' ? 'user' : 'bot'),
-            content: content || text,
-          })),
-        },
-      ])
-    )
+/**
+ * Save chat histories to localStorage
+ */
+export function saveChatsToLocalStorage() {
+  const sanitized = Object.fromEntries(
+    Object.entries(chatHistories).map(([chatId, chat]) => [
+      chatId,
+      {
+        ...chat,
+        messages: chat.messages.map(msg => ({
+          role: msg.role || (msg.sender === 'user' ? 'user' : 'bot'),
+          content: msg.content || msg.text,
+        })),
+      },
+    ])
   );
-};
+  
+  localStorage.setItem(STORAGE_KEYS.CHATS, JSON.stringify(sanitized));
+}
 
-export const addMessage = (role, content, skipHistory = false, messageId = null) => {
+/**
+ * Set active chat ID
+ */
+export function setActiveChatId(chatId) {
+  activeChatId = chatId;
+  localStorage.setItem(STORAGE_KEYS.ACTIVE_CHAT, activeChatId);
+  document.dispatchEvent(new Event('activeChatChanged'));
+}
+
+/**
+ * Add message to chat
+ */
+export function addMessage(role, content, skipHistory = false, messageId = null) {
   if (!activeChatId) return;
 
   const messagesDiv = document.getElementById('messages');
+  const messageWrapper = createMessageElement(role, content, messageId);
   
-  // Configure marked to properly handle code blocks with language
-  marked.setOptions({
-    highlight: function(code, lang) {
-      if (Prism.languages[lang]) {
-        return Prism.highlight(code, Prism.languages[lang], lang);
-      }
-      return code;
-    }
-  });
-  
-  const escapedContent =
-    role === 'bot'
-      ? marked.parse(content)
-      : content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-  // Add user-wrapper class to message wrappers containing user messages for better positioning
-  const wrapperClassList = ['message-wrapper'];
-  if (role === 'user') {
-    wrapperClassList.push('user-wrapper');
-  }
-
-  const messageWrapper = createElement('div', {
-    classList: wrapperClassList,
-    dataset: { messageId },
-    innerHTML: `<div class="message ${role}">${escapedContent}</div>`,
-  });
-
-  // Add language class and line-numbers class to pre elements
-  messageWrapper.querySelectorAll('pre').forEach(pre => {
-    pre.classList.add('line-numbers');
-    const codeElement = pre.querySelector('code');
-    if (codeElement) {
-      // Try to find language class
-      const codeClass = Array.from(codeElement.classList || []).find(cls => cls.startsWith('language-'));
-      let language = 'code';
-      
-      if (codeClass) {
-        language = codeClass.replace('language-', '');
-      } else {
-        // Try to detect language from content if no class is present
-        const codeText = codeElement.textContent || '';
-        if (codeText.includes('function') && codeText.includes('{')) language = 'javascript';
-        else if (codeText.includes('def ') && codeText.includes(':')) language = 'python';
-        else if (codeText.includes('<html>') || codeText.includes('</div>')) language = 'html';
-        else if (codeText.includes('@media') || codeText.includes('{')) language = 'css';
-        else if (codeText.includes('import ') && codeText.includes(' from ')) language = 'javascript';
-        else if (codeText.startsWith('<?php')) language = 'php';
-        // More detection rules can be added here
-      }
-      
-      // Set the language attribute and ensure it's visible
-      pre.setAttribute('data-language', language);
-      
-      // Ensure Prism highlights the code
-      if (window.Prism && !codeClass) {
-        codeElement.classList.add(`language-${language}`);
-        try { window.Prism.highlightElement(codeElement); } catch (e) {}
-      }
-    } else {
-      pre.setAttribute('data-language', 'code');
-    }
-  });
-
-  addCopyButtons(messageWrapper);
   messagesDiv.appendChild(messageWrapper);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-  // Ensure code highlighting works properly
-  setTimeout(() => {
-    try {
-      // Properly initialize Prism only on elements that haven't been highlighted
-      if (window.Prism) {
-        // Only highlight elements that haven't been highlighted yet
-        messageWrapper.querySelectorAll('pre:not([data-highlighted]) code').forEach(code => {
-          Prism.highlightElement(code);
-          code.parentElement.setAttribute('data-highlighted', 'true');
-        });
-        
-        // Make sure language badges are visible
-        messageWrapper.querySelectorAll('pre').forEach(pre => {
-          // Skip if already properly styled
-          if (pre.hasAttribute('data-processed')) return;
-          
-          // Mark as processed to avoid redundant operations
-          pre.setAttribute('data-processed', 'true');
-          
-          // Make sure code blocks have proper overflow settings
-          pre.style.overflow = 'auto';
-          pre.style.overflowX = 'auto';
-          pre.style.overflowY = 'auto';
-          pre.style.maxHeight = '500px';
-          pre.style.display = 'block';
-          
-          // Force language badge to be visible if it has a data-language attribute
-          if (pre.getAttribute('data-language')) {
-            const lang = pre.getAttribute('data-language');
-            pre.setAttribute('data-language', lang); // Re-apply to trigger styles
-          }
-        });
-      }
-    } catch (e) {
-      console.error('Error initializing syntax highlighting:', e);
-    }
-  }, 50);
 
   if (!skipHistory) {
     chatHistories[activeChatId].messages.push({ role, content });
     saveChatsToLocalStorage();
   }
-};
 
-const addCopyButtons = (messageWrapper) => {
-  // Add copy button for the entire message
-  const wrapperCopyButton = createCopyButton(() => {
-    const messageElement = messageWrapper.querySelector('.message');
-    return messageElement ? messageElement.textContent : '';
+  // Highlight code blocks after a short delay
+  setTimeout(() => highlightCodeBlocks(messageWrapper), 50);
+}
+
+/**
+ * Create message element
+ */
+function createMessageElement(role, content, messageId) {
+  const isUser = role === 'user';
+  const classList = ['message-wrapper'];
+  if (isUser) classList.push('user-wrapper');
+
+  const parsedContent = isUser 
+    ? escapeHTML(content)
+    : marked.parse(content);
+
+  const wrapper = createElement('div', {
+    classList,
+    dataset: { messageId },
+    innerHTML: `<div class="message ${role}">${parsedContent}</div>`,
   });
-  messageWrapper.appendChild(wrapperCopyButton);
 
-  // Add copy buttons to each code block
-  messageWrapper.querySelectorAll('pre:not([data-has-copy-btn])').forEach((element) => {
-    // Mark this pre element as having a copy button to avoid duplicates
-    element.setAttribute('data-has-copy-btn', 'true');
-    
-    // Make sure each code block has proper styling applied directly
-    element.style.position = 'relative';
-    element.style.overflow = 'auto';
-    element.style.overflowX = 'auto';
-    element.style.overflowY = 'auto';
-    element.style.maxWidth = '100%';
-    element.style.maxHeight = '500px';
-    element.style.whiteSpace = 'pre';
-    element.style.display = 'block';
-    
-    // Make sure language is detected and applied
-    const codeElement = element.querySelector('code');
-    if (codeElement) {
-      // Try to find language class
-      const codeClass = Array.from(codeElement.classList || []).find(cls => cls.startsWith('language-'));
-      let language = 'code';
-      
-      if (codeClass) {
-        language = codeClass.replace('language-', '');
-      } else {
-        // Try to detect language from content
-        const codeText = codeElement.textContent || '';
-        if (codeText.includes('function') && codeText.includes('{')) language = 'javascript';
-        else if (codeText.includes('def ') && codeText.includes(':')) language = 'python';
-        else if (codeText.includes('<html>') || codeText.includes('</div>')) language = 'html';
-        else if (codeText.includes('@media') || codeText.includes('{')) language = 'css';
-        else if (codeText.match(/print\s*\(/)) language = element.textContent.includes('import') ? 'python' : 'javascript';
-        else if (codeText.includes('cat(')) language = 'r';
-        else if (codeText.match(/puts(tln)?\s*["']/)) language = 'ruby';
-      }
-      
-      // Force set the language attribute directly on the pre element
-      element.setAttribute('data-language', language);
-    } else {
-      element.setAttribute('data-language', 'code');
+  // Process code blocks
+  wrapper.querySelectorAll('pre').forEach(pre => {
+    processCodeBlock(pre);
+  });
+
+  // Add copy button for message
+  addMessageCopyButton(wrapper);
+
+  return wrapper;
+}
+
+/**
+ * Process code block element
+ */
+function processCodeBlock(pre) {
+  pre.classList.add('line-numbers');
+  
+  const codeElement = pre.querySelector('code');
+  if (!codeElement) {
+    pre.setAttribute('data-language', 'code');
+    return;
+  }
+
+  // Detect language
+  const language = detectCodeLanguage(codeElement);
+  pre.setAttribute('data-language', language);
+  
+  if (!codeElement.classList.contains(`language-${language}`)) {
+    codeElement.classList.add(`language-${language}`);
+  }
+
+  // Add copy button
+  addCodeCopyButton(pre, codeElement);
+}
+
+/**
+ * Detect programming language from code element
+ */
+function detectCodeLanguage(codeElement) {
+  // Check for existing language class
+  const existingClass = Array.from(codeElement.classList)
+    .find(cls => cls.startsWith('language-'));
+  
+  if (existingClass) {
+    return existingClass.replace('language-', '');
+  }
+
+  // Detect from content
+  const code = codeElement.textContent || '';
+  return detectLanguageFromCode(code);
+}
+
+/**
+ * Detect language from code content
+ */
+function detectLanguageFromCode(code) {
+  const detectors = [
+    { lang: 'javascript', patterns: [/function\s+\w+/, /const\s+\w+\s*=/, /console\.log/] },
+    { lang: 'python', patterns: [/def\s+\w+\(.*\):/, /import\s+\w+/, /print\(/] },
+    { lang: 'html', patterns: [/<html>/, /<div/, /<\/\w+>/] },
+    { lang: 'css', patterns: [/@media/, /\{[^}]*:[^}]*\}/] },
+    { lang: 'java', patterns: [/public\s+class/, /System\.out/] },
+    { lang: 'php', patterns: [/<\?php/, /echo\s+/] },
+    { lang: 'ruby', patterns: [/def\s+\w+/, /puts\s+/] },
+    { lang: 'go', patterns: [/func\s+main/, /fmt\.Println/] },
+    { lang: 'rust', patterns: [/fn\s+main/, /let\s+mut/] },
+  ];
+
+  for (const { lang, patterns } of detectors) {
+    if (patterns.some(pattern => pattern.test(code))) {
+      return lang;
     }
-    
-    // Create copy button with proper function
-    const copyButton = document.createElement('button');
-    copyButton.classList.add('code-copy-btn');
-    copyButton.title = "Copy code";
-    copyButton.innerHTML = '<i class="fa-regular fa-copy"></i>';
-    
-    // Remove any previous copy button to avoid duplicates
-    const existingBtn = element.querySelector('.code-copy-btn');
-    if (existingBtn) element.removeChild(existingBtn);
-    
-    // Add click handler
-    copyButton.addEventListener('click', async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      try {
-        const textToCopy = codeElement ? codeElement.textContent : element.textContent;
-        await navigator.clipboard.writeText(textToCopy);
-        
-        // Visual confirmation
-        copyButton.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-        copyButton.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
-        
-        setTimeout(() => {
-          copyButton.innerHTML = '<i class="fa-regular fa-copy"></i>';
-          copyButton.style.backgroundColor = '';
-        }, 2000);
-      } catch (err) {
-        console.error('Copy failed:', err);
-        // Use fallback
-        const textarea = document.createElement('textarea');
-        textarea.value = codeElement ? codeElement.textContent : element.textContent;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        
-        copyButton.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-        setTimeout(() => {
-          copyButton.innerHTML = '<i class="fa-regular fa-copy"></i>';
-        }, 2000);
-      }
-    });
-    
-    // Add the button
-    element.appendChild(copyButton);
-  });
-};
+  }
 
-const createCopyButton = (getText) => {
+  return 'code';
+}
+
+/**
+ * Add copy button to message wrapper
+ */
+function addMessageCopyButton(wrapper) {
   const button = createElement('button', {
     classList: ['copy-btn'],
     innerHTML: '<i class="fa-regular fa-copy"></i>',
   });
+
   button.addEventListener('click', async (e) => {
-    // Prevent default to avoid issues
     e.preventDefault();
     e.stopPropagation();
     
-    try {
-      const text = getText();
-      // Try to use the modern clipboard API
-      await navigator.clipboard.writeText(text);
-      
-      // Visual confirmation
-      button.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-      button.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
-      button.style.borderColor = 'rgba(16, 185, 129, 0.6)';
-      
-      // Reset after a delay
-      setTimeout(() => {
-        button.innerHTML = '<i class="fa-regular fa-copy"></i>';
-        button.style.backgroundColor = '';
-        button.style.borderColor = '';
-      }, 2000);
-      
-    } catch (err) {
-      // Fallback for browsers that don't support clipboard API
-      console.error('Copy failed:', err);
-      
-      // Try fallback method
-      const textArea = document.createElement('textarea');
-      textArea.value = getText();
-      textArea.style.position = 'fixed';
-      textArea.style.top = '0';
-      textArea.style.left = '0';
-      textArea.style.width = '2em';
-      textArea.style.height = '2em';
-      textArea.style.opacity = '0';
-      
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      
-      try {
-        document.execCommand('copy');
-        button.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-      } catch (err) {
-        console.error('Fallback copy failed:', err);
-        button.innerHTML = '<i class="fa-solid fa-times"></i> Failed';
-      }
-      
-      setTimeout(() => {
-        button.innerHTML = '<i class="fa-regular fa-copy"></i>';
-      }, 2000);
-      document.body.removeChild(textArea);
-    }
-    
-    return false;
+    const messageElement = wrapper.querySelector('.message');
+    const text = messageElement ? messageElement.textContent : '';
+    await copyToClipboard(text, button);
   });
 
-  return button;
-};
+  wrapper.appendChild(button);
+}
 
-// UI Updates
-export const switchChat = (chatId) => {
+/**
+ * Add copy button to code block
+ */
+function addCodeCopyButton(pre, codeElement) {
+  if (pre.querySelector('.code-copy-btn')) return;
+
+  const button = createElement('button', {
+    classList: ['code-copy-btn'],
+    innerHTML: '<i class="fa-regular fa-copy"></i>',
+    title: 'Copy code',
+  });
+
+  button.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const text = codeElement.textContent || pre.textContent;
+    await copyToClipboard(text, button);
+  });
+
+  pre.appendChild(button);
+}
+
+/**
+ * Copy text to clipboard
+ */
+async function copyToClipboard(text, button) {
+  try {
+    await navigator.clipboard.writeText(text);
+    showCopyFeedback(button, true);
+  } catch (error) {
+    fallbackCopy(text, button);
+  }
+}
+
+/**
+ * Fallback copy method
+ */
+function fallbackCopy(text, button) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  
+  document.body.appendChild(textarea);
+  textarea.select();
+  
+  try {
+    document.execCommand('copy');
+    showCopyFeedback(button, true);
+  } catch (error) {
+    showCopyFeedback(button, false);
+  }
+  
+  document.body.removeChild(textarea);
+}
+
+/**
+ * Show copy feedback
+ */
+function showCopyFeedback(button, success) {
+  const icon = success 
+    ? '<i class="fa-solid fa-check"></i>'
+    : '<i class="fa-solid fa-times"></i>';
+  
+  button.innerHTML = icon;
+  
+  setTimeout(() => {
+    button.innerHTML = '<i class="fa-regular fa-copy"></i>';
+  }, 2000);
+}
+
+/**
+ * Highlight code blocks using Prism
+ */
+function highlightCodeBlocks(wrapper) {
+  if (!window.Prism) return;
+
+  wrapper.querySelectorAll('pre:not([data-highlighted]) code').forEach(code => {
+    try {
+      Prism.highlightElement(code);
+      code.parentElement?.setAttribute('data-highlighted', 'true');
+    } catch (error) {
+      console.error('Error highlighting code:', error);
+    }
+  });
+}
+
+/**
+ * Switch to different chat
+ */
+export function switchChat(chatId) {
   if (activeChatId === chatId) return;
 
   setActiveChatId(chatId);
+  
   const messagesDiv = document.getElementById('messages');
   messagesDiv.innerHTML = '';
 
-  chatHistories[chatId]?.messages.forEach(({ role, content }) =>
-    addMessage(role === 'user' ? 'user' : 'bot', content, true)
-  );
+  // Load chat history
+  chatHistories[chatId]?.messages.forEach(({ role, content }) => {
+    addMessage(role === 'user' ? 'user' : 'bot', content, true);
+  });
 
   updateActiveChatUI(chatId);
-};
+}
 
-const updateActiveChatUI = (chatId) => {
-  const escapedChatId = CSS.escape(chatId);
+/**
+ * Update active chat UI
+ */
+function updateActiveChatUI(chatId) {
+  const escapedId = CSS.escape(chatId);
 
-  document.querySelectorAll('.chat-item').forEach((chat) => chat.classList.remove('active'));
-  const chatElement = document.querySelector(`[data-chat-id="${escapedChatId}"]`);
-  if (chatElement) {
-    chatElement.classList.add('active');
-  } else {
-    console.warn('No chat item found for chatId:', chatId);
-  }
-};
+  document.querySelectorAll('.chat-item').forEach(item => {
+    item.classList.remove('active');
+  });
 
-export const restoreChats = () => {
+  const activeItem = document.querySelector(`[data-chat-id="${escapedId}"]`);
+  activeItem?.classList.add('active');
+}
+
+/**
+ * Restore chats from storage
+ */
+export function restoreChats() {
   const chatList = document.getElementById('chat-list');
   chatList.innerHTML = '';
 
-  const groupedChats = Object.entries(chatHistories).reduce(
+  const groupedChats = groupChatsByCategory();
+  
+  renderChatGroup(chatList, 'Pinned', groupedChats.pinned);
+  renderChatsByDate(chatList, groupedChats.other);
+
+  const lastActiveChatId = localStorage.getItem(STORAGE_KEYS.ACTIVE_CHAT);
+  const firstChatId = Object.keys(chatHistories)[0];
+  
+  // Use requestAnimationFrame for smoother UI updates
+  requestAnimationFrame(() => {
+    switchChat(lastActiveChatId || firstChatId);
+  });
+}
+
+/**
+ * Setup event delegation for chat list (call once on init)
+ */
+export function setupChatListDelegation() {
+  const chatList = document.getElementById('chat-list');
+  
+  // Delegate chat item clicks
+  chatList.addEventListener('click', (e) => {
+    const chatItem = e.target.closest('.chat-item');
+    const ellipsisBtn = e.target.closest('.ellipsis-btn');
+    
+    if (ellipsisBtn && chatItem) {
+      e.stopPropagation();
+      const chatId = chatItem.dataset.chatId;
+      showEllipsisMenu(ellipsisBtn, chatId);
+    } else if (chatItem) {
+      const chatId = chatItem.dataset.chatId;
+      switchChat(chatId);
+    }
+  });
+}
+
+/**
+ * Group chats by category (pinned/other)
+ */
+function groupChatsByCategory() {
+  return Object.entries(chatHistories).reduce(
     (groups, [chatId, chat]) => {
-      const groupKey = chat.pinned ? 'Pinned' : 'Other';
-      groups[groupKey].push({ chatId, chat });
+      const key = chat.pinned ? 'pinned' : 'other';
+      groups[key].push({ chatId, chat });
       return groups;
     },
-    { Pinned: [], Other: [] }
+    { pinned: [], other: [] }
   );
+}
 
-  renderChatGroup(chatList, 'Pinned', groupedChats.Pinned);
-  renderChats(chatList, groupedChats.Other);
-
-  const lastActiveChatId = localStorage.getItem(ACTIVE_CHAT_KEY);
-  switchChat(lastActiveChatId || Object.keys(chatHistories)[0]);
-};
-
-const renderChatGroup = (chatList, label, chats) => {
+/**
+ * Render chat group with label
+ */
+function renderChatGroup(chatList, label, chats) {
   if (chats.length === 0) return;
 
-  chatList.appendChild(
-    createElement('div', {
-      classList: ['date-separator'],
-      innerHTML: `<hr><span>${label}</span>`,
-    })
-  );
+  chatList.appendChild(createElement('div', {
+    classList: ['date-separator'],
+    innerHTML: `<hr><span>${label}</span><hr>`,
+  }));
 
-  chats.forEach(({ chatId, chat }) => chatList.appendChild(createChatItem(chatId, chat.name)));
-};
+  chats.forEach(({ chatId, chat }) => {
+    chatList.appendChild(createChatItem(chatId, chat.name));
+  });
+}
 
-const renderChats = (chatList, otherChats) => {
-  const groupedByDate = otherChats.reduce((groups, { chatId, chat }) => {
+/**
+ * Render chats grouped by date
+ */
+function renderChatsByDate(chatList, chats) {
+  const grouped = chats.reduce((groups, { chatId, chat }) => {
     const date = new Date(parseInt(chatId.split('-')[1], 10));
-    const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+    const key = date.toLocaleString('default', { 
+      month: 'long', 
+      year: 'numeric' 
+    });
 
-    groups[monthYear] = groups[monthYear] || [];
-    groups[monthYear].push({ chatId, chat });
+    groups[key] = groups[key] || [];
+    groups[key].push({ chatId, chat });
     return groups;
   }, {});
 
-  Object.entries(groupedByDate)
-    .sort(([, a], [, b]) => b[0] - a[0])
-    .forEach(([monthYear, chats]) => renderChatGroup(chatList, monthYear, chats));
-};
+  Object.entries(grouped)
+    .sort(([, a], [, b]) => b[0].chatId - a[0].chatId)
+    .forEach(([monthYear, chats]) => {
+      renderChatGroup(chatList, monthYear, chats);
+    });
+}
 
-const createChatItem = (chatId, chatName) => {
-  const chatItem = createElement('li', {
+/**
+ * Create chat item element
+ */
+function createChatItem(chatId, chatName) {
+  const item = createElement('li', {
     classList: ['chat-item'],
     dataset: { chatId },
-    innerHTML: `<div class="chat-item-content"><span class="chat-text">${chatName}</span></div><button class="ellipsis-btn"><i class="fa-solid fa-ellipsis"></i></button>`,
-  });
-  chatItem.addEventListener('click', () => switchChat(chatId));
-  addEllipsisMenu(chatItem.querySelector('.ellipsis-btn'));
-  return chatItem;
-};
-
-export const addNewChat = () => {
-  const chatId = `chat-${Date.now()}`;
-  chatHistories[chatId] = { name: `Chat ${Object.keys(chatHistories).length + 1}`, messages: [] };
-  saveChatsToLocalStorage();
-  restoreChats();
-  switchChat(chatId);
-};
-
-// Ellipsis Menu
-export const addEllipsisMenu = (ellipsisBtn) => {
-  ellipsisBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    document.querySelector('.menu')?.remove();
-
-    const menu = createEllipsisMenu(ellipsisBtn);
-    document.body.appendChild(menu);
-
-    const rect = ellipsisBtn.getBoundingClientRect();
-    
-    // Calculate if menu would be below viewport
-    const menuHeight = 150; // Approximate menu height
-    const viewportHeight = window.innerHeight;
-    const spaceBelow = viewportHeight - rect.bottom;
-    
-    // Position menu above button if not enough space below
-    if (spaceBelow < menuHeight) {
-      menu.style.top = `${rect.top - menuHeight + window.scrollY}px`;
-      menu.style.left = `${rect.left + window.scrollX}px`;
-      menu.classList.add('menu-above');
-    } else {
-      menu.style.top = `${rect.bottom + window.scrollY}px`;
-      menu.style.left = `${rect.left + window.scrollX}px`;
-    }
-
-    document.addEventListener(
-      'click',
-      (event) => {
-        if (!menu.contains(event.target) && event.target !== ellipsisBtn) menu.remove();
-      },
-      { once: true }
-    );
-  });
-};
-
-const createEllipsisMenu = (ellipsisBtn) => {
-  const chatId = ellipsisBtn.parentElement.dataset.chatId;
-  const menu = createElement('div', {
-    classList: ['menu'],
     innerHTML: `
-    <button class="menu-item pin-btn">${chatHistories[chatId]?.pinned ? 'Unpin' : 'Pin'}</button>
-      <button class="menu-item rename-btn">Rename</button>
-      <button class="menu-item delete-btn">Delete</button>
+      <div class="chat-item-content">
+        <span class="chat-text">${escapeHTML(chatName)}</span>
+      </div>
+      <button class="ellipsis-btn">
+        <i class="fa-solid fa-ellipsis"></i>
+      </button>
     `,
   });
 
-  menu.querySelector('.rename-btn').addEventListener('click', () => handleRenameChat(chatId, menu));
-  menu.querySelector('.delete-btn').addEventListener('click', () => handleDeleteChat(chatId, menu));
-  menu.querySelector('.pin-btn').addEventListener('click', () => handlePinChat(chatId, menu));
+  // Events handled by delegation, no individual listeners needed
+  return item;
+}
+
+/**
+ * Show ellipsis menu
+ */
+function showEllipsisMenu(button, chatId) {
+  // Remove existing menu
+  document.querySelector('.menu')?.remove();
+
+  const menu = createEllipsisMenu(chatId);
+  document.body.appendChild(menu);
+
+  // Position menu
+  positionMenu(menu, button);
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!menu.contains(e.target) && e.target !== button) {
+      menu.remove();
+    }
+  }, { once: true });
+}
+
+/**
+ * Create ellipsis menu
+ */
+function createEllipsisMenu(chatId) {
+  const isPinned = chatHistories[chatId]?.pinned;
+  
+  const menu = createElement('div', {
+    classList: ['menu'],
+    innerHTML: `
+      <button class="menu-item pin-btn">
+        <i class="fa-solid fa-thumbtack"></i>
+        ${isPinned ? 'Unpin' : 'Pin'}
+      </button>
+      <button class="menu-item rename-btn">
+        <i class="fa-solid fa-pen"></i>
+        Rename
+      </button>
+      <button class="menu-item delete-btn">
+        <i class="fa-solid fa-trash"></i>
+        Delete
+      </button>
+    `,
+  });
+
+  menu.querySelector('.pin-btn')
+    .addEventListener('click', () => handlePinChat(chatId, menu));
+  menu.querySelector('.rename-btn')
+    .addEventListener('click', () => handleRenameChat(chatId, menu));
+  menu.querySelector('.delete-btn')
+    .addEventListener('click', () => handleDeleteChat(chatId, menu));
 
   return menu;
-};
+}
 
-const handlePinChat = (chatId, menu) => {
+/**
+ * Position menu relative to button
+ */
+function positionMenu(menu, button) {
+  const rect = button.getBoundingClientRect();
+  const menuHeight = 150;
+  const spaceBelow = window.innerHeight - rect.bottom;
+
+  if (spaceBelow < menuHeight) {
+    menu.style.top = `${rect.top - menuHeight + window.scrollY}px`;
+  } else {
+    menu.style.top = `${rect.bottom + window.scrollY}px`;
+  }
+  
+  menu.style.left = `${rect.left + window.scrollX}px`;
+}
+
+/**
+ * Handle pin/unpin chat
+ */
+function handlePinChat(chatId, menu) {
   chatHistories[chatId].pinned = !chatHistories[chatId].pinned;
   saveChatsToLocalStorage();
-  restoreChats();
+  
+  // Debounced restore to prevent multiple rapid updates
+  debounceRestoreChats();
   menu.remove();
-};
+}
 
-const handleRenameChat = (chatId, menu) => {
-  const newName = prompt('Enter a new name for the chat:');
-  if (newName) {
-    chatHistories[chatId].name = newName;
+/**
+ * Handle rename chat
+ */
+function handleRenameChat(chatId, menu) {
+  menu.remove();
+  showRenameModal(chatId);
+}
+
+/**
+ * Handle delete chat
+ */
+function handleDeleteChat(chatId, menu) {
+  menu.remove();
+  showDeleteConfirmModal(chatId);
+}
+
+/**
+ * Show rename modal
+ */
+function showRenameModal(chatId) {
+  const modal = createElement('div', {
+    classList: ['modal'],
+    innerHTML: `
+      <div class="modal-content">
+        <h2>Rename Chat</h2>
+        <input type="text" id="rename-input" class="modal-input" 
+               value="${escapeHTML(chatHistories[chatId].name)}" 
+               placeholder="Enter new name">
+        <div class="modal-buttons">
+          <button class="modal-btn cancel-btn">Cancel</button>
+          <button class="modal-btn confirm-btn">Rename</button>
+        </div>
+      </div>
+    `,
+  });
+
+  document.body.appendChild(modal);
+  
+  const input = modal.querySelector('#rename-input');
+  input.focus();
+  input.select();
+
+  modal.querySelector('.cancel-btn').addEventListener('click', () => {
+    modal.remove();
+  });
+
+  modal.querySelector('.confirm-btn').addEventListener('click', () => {
+    const newName = input.value.trim();
+    if (newName) {
+      chatHistories[chatId].name = newName;
+      saveChatsToLocalStorage();
+      debounceRestoreChats();
+    }
+    modal.remove();
+  });
+
+  // Enter to confirm, Escape to cancel
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      modal.querySelector('.confirm-btn').click();
+    } else if (e.key === 'Escape') {
+      modal.remove();
+    }
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.remove();
+  });
+}
+
+/**
+ * Show delete confirmation modal
+ */
+function showDeleteConfirmModal(chatId) {
+  const modal = createElement('div', {
+    classList: ['modal'],
+    innerHTML: `
+      <div class="modal-content">
+        <h2>Delete Chat</h2>
+        <p>Are you sure you want to delete "${escapeHTML(chatHistories[chatId].name)}"?</p>
+        <p class="modal-warning">This action cannot be undone.</p>
+        <div class="modal-buttons">
+          <button class="modal-btn cancel-btn">Cancel</button>
+          <button class="modal-btn delete-btn">Delete</button>
+        </div>
+      </div>
+    `,
+  });
+
+  document.body.appendChild(modal);
+
+  modal.querySelector('.cancel-btn').addEventListener('click', () => {
+    modal.remove();
+  });
+
+  modal.querySelector('.delete-btn').addEventListener('click', () => {
+    delete chatHistories[chatId];
     saveChatsToLocalStorage();
-    restoreChats();
-  }
-  menu.remove();
-};
 
-const handleDeleteChat = (chatId, menu) => {
-  delete chatHistories[chatId];
+    if (activeChatId === chatId) {
+      const remainingChats = Object.keys(chatHistories);
+      if (remainingChats.length > 0) {
+        switchChat(remainingChats[0]);
+      } else {
+        document.getElementById('messages').innerHTML = '';
+      }
+    }
+    
+    debounceRestoreChats();
+    modal.remove();
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.remove();
+  });
+}
+
+// Debounce helper for restoreChats
+let restoreChatsTimeout;
+function debounceRestoreChats() {
+  clearTimeout(restoreChatsTimeout);
+  restoreChatsTimeout = setTimeout(() => restoreChats(), 100);
+}
+
+/**
+ * Add new chat
+ */
+export function addNewChat() {
+  const chatId = `chat-${Date.now()}`;
+  const chatNumber = Object.keys(chatHistories).length + 1;
+  
+  chatHistories[chatId] = {
+    name: `Chat ${chatNumber}`,
+    messages: [],
+  };
+  
   saveChatsToLocalStorage();
-  restoreChats();
+  debounceRestoreChats();
+  switchChat(chatId);
+}
 
-  if (activeChatId === chatId) {
-    const remainingChats = Object.keys(chatHistories);
-    switchChat(remainingChats[0] || null);
-    if (!remainingChats.length) document.getElementById('messages').innerHTML = '';
-  }
-  menu.remove();
-};
+/**
+ * Utility: Create element with options
+ */
+function createElement(tag, options = {}) {
+  const element = document.createElement(tag);
+  
+  Object.entries(options).forEach(([key, value]) => {
+    if (key === 'classList') {
+      element.classList.add(...value);
+    } else if (key === 'dataset') {
+      Object.assign(element.dataset, value);
+    } else if (key === 'style') {
+      element.style.cssText = value;
+    } else {
+      element[key] = value;
+    }
+  });
+  
+  return element;
+}
+
+/**
+ * Utility: Escape HTML
+ */
+function escapeHTML(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}

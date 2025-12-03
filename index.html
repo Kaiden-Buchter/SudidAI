@@ -9,7 +9,7 @@
   <meta http-equiv="Content-Security-Policy" 
         content="default-src 'self'; 
         script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; 
-        style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
         connect-src 'self' https://sudidai-backend.knbuchtyy879.workers.dev; 
         object-src 'none'; 
@@ -24,54 +24,80 @@
 </head>
 <body>
   <div id="app">
-    <!-- Sidebar Toggle Button (Now outside the sidebar) -->
-    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
-      <i class="fa-solid fa-bars"></i>
-    </button>
-    
-    <!-- Sidebar -->
-    <nav id="sidebar" class="sidebar-visible" aria-label="Sidebar">
-      <div id="sidebar-header">
-        <button id="search-btn" aria-label="Search">
-          <i class="fa-solid fa-magnifying-glass"></i>
+    <!-- Top Navigation Bar -->
+    <nav id="top-nav">
+      <div class="nav-left">
+        <button id="sidebar-toggle" class="nav-btn" aria-label="Toggle Sidebar">
+          <i class="fa-solid fa-bars"></i>
         </button>
-        <button id="new-chat-btn" aria-label="Start New Chat">
+        <h1 class="logo">Sudid<span class="logo-accent">AI</span></h1>
+      </div>
+      <div class="nav-right">
+        <button id="new-chat-btn" class="nav-btn" aria-label="Start New Chat" title="New Chat">
           <i class="fa-solid fa-plus"></i>
         </button>
+        <button id="search-btn" class="nav-btn" aria-label="Search" title="Search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <button id="settings-link" class="nav-btn" aria-label="Settings" title="Settings">
+          <i class="fa-solid fa-gear"></i>
+        </button>
       </div>
-      <ul id="chat-list" aria-label="Chat List"></ul>
-      <footer id="sidebar-footer">
-        <p id="settings-link" class="clickable" aria-label="Open Settings">Settings</p>
-      </footer>
     </nav>
+
+    <div id="main-wrapper">
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar-visible" aria-label="Chats">
+        <div class="sidebar-content">
+          <div class="sidebar-header">
+            <h2>Chats</h2>
+          </div>
+          <ul id="chat-list" aria-label="Chat List"></ul>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main id="main-content">
+        <div id="chat-container">
+          <div id="messages" aria-live="polite" aria-label="Chat Messages"></div>
+        </div>
+        
+        <!-- Input Area (Fixed at Bottom) -->
+        <div id="input-wrapper">
+          <form id="chat-form" aria-label="Chat Form">
+            <div class="input-container">
+              <textarea 
+                id="user-input" 
+                placeholder="Message SudidAI..." 
+                autocomplete="off" 
+                aria-label="Message Input" 
+                rows="1"></textarea>
+              <button id="send" type="submit" aria-label="Send Message">
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
 
     <!-- Settings Modal -->
     <div id="settings-modal" class="hidden" role="dialog" aria-labelledby="settings-title">
       <div class="modal-content">
-        <h2 id="settings-title">Settings</h2>
-        <label for="dark-mode-toggle" class="setting-option">
-          <input type="checkbox" id="dark-mode-toggle">
-          Enable Dark Mode
-        </label>
-        <button id="close-settings-btn" aria-label="Close Settings">Close</button>
+        <div class="modal-header">
+          <h2 id="settings-title">Settings</h2>
+          <button id="close-settings-btn" class="close-btn" aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <label for="dark-mode-toggle" class="setting-option">
+            <span>Enable Dark Mode</span>
+            <input type="checkbox" id="dark-mode-toggle">
+          </label>
+        </div>
       </div>
     </div>
-    
-    <!-- Main Content -->
-    <main id="main-content">
-      <div id="chat-container">
-        <div id="messages" aria-live="polite" aria-label="Chat Messages"></div>
-        <form id="chat-form" aria-label="Chat Form">
-          <textarea 
-            id="user-input" 
-            placeholder="Type your message..." 
-            autocomplete="off" 
-            aria-label="Message Input" 
-            rows="3"></textarea>
-          <button id="send" type="submit" aria-label="Send Message">Send</button>
-        </form>
-      </div>
-    </main>
   </div>
 
   <!-- External Scripts -->
