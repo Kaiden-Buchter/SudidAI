@@ -43,6 +43,26 @@
   min-height: 24px;
   max-height: 200px;
   line-height: 1.5;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+#user-input::-webkit-scrollbar {
+  width: 6px;
+}
+
+#user-input::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#user-input::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+#user-input::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 #user-input::placeholder {

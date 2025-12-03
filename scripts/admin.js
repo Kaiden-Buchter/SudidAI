@@ -18,23 +18,54 @@ document.getElementById('logout-btn').addEventListener('click', () => {
   window.location.href = 'login.html';
 });
 
-// Load users
-async function loadUsers() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/users`, {
-      headers: { 'Authorization': `Bearer ${token}` },
-    });
+// Manual refresh button
+document.getElementById('refresh-users-btn').addEventListener('click', () => {
+  const btn = document.getElementById('refresh-users-btn');
+  const icon = btn.querySelector('i');
+  
+  // Add spinning animation
+  icon.classList.add('fa-spin');
+  btn.disabled = true;
+  
+  loadUsers().finally(() => {
+    icon.classList.remove('fa-spin');
+    btn.disabled = false;
+  });
+});
 
-    if (response.ok) {
-      const users = await response.json();
-      displayUsers(users);
-    } else {
-      showError('Failed to load users');
+// Load users
+async function loadUsers(retryCount = 0) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const users = await response.json();
+        displayUsers(users);
+        resolve();
+      } else if (response.status === 500 && retryCount < 2) {
+        // Retry on 500 error (server might still be processing)
+        console.log(`Server error, retrying... (attempt ${retryCount + 1}/2)`);
+        setTimeout(() => loadUsers(retryCount + 1).then(resolve).catch(reject), 1000);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to load users:', response.status, errorData);
+        showError(errorData.error || `Failed to load users (${response.status})`);
+        reject(new Error('Failed to load users'));
+      }
+    } catch (error) {
+      console.error('Error loading users:', error);
+      if (retryCount < 2) {
+        console.log(`Network error, retrying... (attempt ${retryCount + 1}/2)`);
+        setTimeout(() => loadUsers(retryCount + 1).then(resolve).catch(reject), 1000);
+      } else {
+        showError('Failed to load users. Please try again.');
+        reject(error);
+      }
     }
-  } catch (error) {
-    console.error('Error loading users:', error);
-    showError('Failed to load users');
-  }
+  });
 }
 
 function displayUsers(users) {
@@ -83,18 +114,19 @@ document.getElementById('add-user-form').addEventListener('submit', async (e) =>
       body: JSON.stringify({ username, password }),
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (response.ok) {
-      showSuccess(`User "${username}" added successfully`);
+      showSuccess(`User "${username}" added successfully. Click Refresh to update the list.`);
       document.getElementById('add-user-form').reset();
-      loadUsers();
+      // Don't auto-refresh due to server issues - let user manually refresh
     } else {
-      showError(data.error || 'Failed to add user');
+      console.error('Failed to add user:', response.status, data);
+      showError(data.error || `Failed to add user (${response.status})`);
     }
   } catch (error) {
     console.error('Error adding user:', error);
-    showError('Failed to add user');
+    showError('Failed to add user. Please try again.');
   }
 });
 
@@ -110,16 +142,18 @@ window.deleteUser = async (username) => {
       headers: { 'Authorization': `Bearer ${token}` },
     });
 
+    const data = await response.json().catch(() => ({}));
+
     if (response.ok) {
-      showSuccess(`User "${username}" deleted successfully`);
-      loadUsers();
+      showSuccess(`User "${username}" deleted successfully. Click Refresh to update the list.`);
+      // Don't auto-refresh due to server issues - let user manually refresh
     } else {
-      const data = await response.json();
-      showError(data.error || 'Failed to delete user');
+      console.error('Failed to delete user:', response.status, data);
+      showError(data.error || `Failed to delete user (${response.status})`);
     }
   } catch (error) {
     console.error('Error deleting user:', error);
-    showError('Failed to delete user');
+    showError('Failed to delete user. Please try again.');
   }
 };
 

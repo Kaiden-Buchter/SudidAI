@@ -9,6 +9,16 @@ export const chatHistories = loadChatHistories();
 export let activeChatId = null;
 
 /**
+ * Scroll chat to bottom
+ */
+export function scrollToBottom() {
+  const chatContainer = document.getElementById('chat-container');
+  if (chatContainer) {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+}
+
+/**
  * Load chat histories from localStorage
  */
 function loadChatHistories() {
@@ -55,7 +65,7 @@ export function addMessage(role, content, skipHistory = false, messageId = null)
   const messageWrapper = createMessageElement(role, content, messageId);
   
   messagesDiv.appendChild(messageWrapper);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  scrollToBottom();
 
   if (!skipHistory) {
     chatHistories[activeChatId].messages.push({ role, content });
@@ -286,6 +296,9 @@ export function switchChat(chatId) {
     addMessage(role === 'user' ? 'user' : 'bot', content, true);
   });
 
+  // Scroll to bottom after loading messages
+  setTimeout(() => scrollToBottom(), 100);
+
   updateActiveChatUI(chatId);
 }
 
@@ -321,6 +334,8 @@ export function restoreChats() {
   // Use requestAnimationFrame for smoother UI updates
   requestAnimationFrame(() => {
     switchChat(lastActiveChatId || firstChatId);
+    // Ensure scroll to bottom after initial load
+    setTimeout(() => scrollToBottom(), 150);
   });
 }
 

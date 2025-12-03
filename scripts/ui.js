@@ -138,10 +138,28 @@ export function setupAutoSave() {
   // Restore draft
   chatInput.value = localStorage.getItem('chat_draft') || '';
 
-  // Save on input
+  // Save on input and auto-resize
   chatInput.addEventListener('input', () => {
     localStorage.setItem('chat_draft', chatInput.value);
+    autoResizeTextarea(chatInput);
   });
+
+  // Initial resize for restored content
+  if (chatInput.value) {
+    autoResizeTextarea(chatInput);
+  }
+}
+
+/**
+ * Auto-resize textarea based on content
+ */
+function autoResizeTextarea(textarea) {
+  // Reset height to auto to get the correct scrollHeight
+  textarea.style.height = 'auto';
+  
+  // Set new height based on content, respecting max-height
+  const newHeight = Math.min(textarea.scrollHeight, 200);
+  textarea.style.height = newHeight + 'px';
 }
 
 /**
