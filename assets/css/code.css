@@ -1,17 +1,20 @@
-/* Code Blocks and Syntax Highlighting */
+/* Code Blocks (Modernized) */
 
 pre {
-  background: #0d0d0d;
+  background: #1e1e1e; /* VS Code-like dark background */
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  overflow: auto;
+  padding: 1.25rem;
+  overflow-x: auto;
   max-height: 500px;
   position: relative;
-  font-family: 'Fira Code', 'Consolas', monospace;
-  margin: 1rem 0;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  margin: 1.5rem 0;
   scrollbar-width: thin;
-  scrollbar-color: var(--accent) transparent;
+  scrollbar-color: var(--bg-hover) var(--bg-surface);
+  line-height: 1.6;
+  font-variant-ligatures: none;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
 }
 
 pre::-webkit-scrollbar {
@@ -19,48 +22,66 @@ pre::-webkit-scrollbar {
   height: 8px;
 }
 
+pre::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+  border-radius: 4px;
+}
+
 pre::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 10px;
+  background: var(--bg-hover);
+  border-radius: 4px;
 }
 
 pre code {
-  color: #e5e7eb;
-  font-size: 0.875rem;
-  line-height: 1.7;
+  color: #d4d4d4;
+  font-size: 0.9em;
+  font-weight: 400;
+  text-shadow: none;
 }
 
+/* Language Badge */
 pre::after {
   content: attr(data-language);
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: var(--accent);
-  color: white;
-  padding: 0.25rem 0.625rem;
-  border-radius: var(--radius);
+  top: 0;
+  right: 0;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  padding: 0.35rem 0.85rem;
+  border-bottom-left-radius: var(--radius);
+  border-top-right-radius: var(--radius-lg);
   font-size: 0.7rem;
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: 0.05em;
+  opacity: 0.8;
+  pointer-events: none;
 }
 
 .code-copy-btn {
   position: absolute !important;
-  bottom: 0.75rem !important;
-  right: 0.75rem !important;
-  background: rgba(124, 58, 237, 0.2) !important;
-  border: 1px solid rgba(124, 58, 237, 0.4) !important;
-  padding: 0.5rem 0.875rem !important;
-  border-radius: var(--radius) !important;
-  color: var(--text-primary) !important;
+  top: 0.5rem !important; /* Move to top right next to language */
+  right: 3.5rem !important;
+  bottom: auto !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0.25rem !important;
+  color: var(--text-muted) !important;
   cursor: pointer !important;
-  font-size: 0.75rem !important;
   transition: all var(--transition) !important;
   z-index: 10 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .code-copy-btn:hover {
-  background: rgba(124, 58, 237, 0.4) !important;
-  border-color: var(--accent) !important;
+  color: var(--text-primary) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+.code-copy-btn svg {
+  width: 16px;
+  height: 16px;
 }

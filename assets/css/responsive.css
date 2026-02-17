@@ -1,75 +1,137 @@
-/* Responsive Design - Mobile and Tablet */
+/* Responsive Design */
 
+/* Tablet & Mobile (<= 768px) */
 @media (max-width: 768px) {
+  #app {
+    height: 100dvh; /* Use dynamic viewport height for mobile browsers */
+  }
+
+  /* Sidebar becomes an overlay drawer */
   #sidebar {
     position: fixed;
-    height: calc(100vh - var(--topnav-height));
+    height: calc(100dvh - var(--topnav-height));
     top: var(--topnav-height);
     left: 0;
     z-index: 150;
-    box-shadow: 4px 0 20px var(--shadow-lg);
+    width: 280px;
+    box-shadow: var(--shadow-xl);
+    border-right: none;
+    background: var(--bg-dark); /* Solid background for overlay */
   }
 
   #sidebar.sidebar-hidden {
     transform: translateX(-100%);
+    pointer-events: none;
   }
 
+  /* Overlay for sidebar when open */
+  #sidebar:not(.sidebar-hidden)::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    left: 280px;
+    width: 100vw;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: -1;
+    cursor: pointer;
+  }
+
+  /* Navigation adjustments */
+  #top-nav {
+    padding: 0 1rem;
+    height: 60px;
+  }
+  
+  .logo {
+    font-size: 1.1rem;
+  }
+  
+  .nav-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Chat area adjustments */
   #messages {
     padding: 1.5rem 1rem;
+    gap: 1.5rem;
   }
 
   .message {
     max-width: 90%;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    padding: 0.875rem 1rem;
   }
 
   #input-wrapper {
     padding: 1rem;
   }
-
-  .logo {
-    font-size: 1.25rem;
+  
+  .input-container {
+    gap: 0.5rem;
+    padding: 0.5rem;
   }
 
-  .nav-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
-  }
-
-  #top-nav {
-    padding: 0 1rem;
+  #user-input {
+    font-size: 16px; /* Prevents auto-zoom on iOS */
+    padding: 0.625rem 0.5rem;
   }
 }
 
+/* Mobile (<= 480px) */
 @media (max-width: 480px) {
+  :root {
+    --topnav-height: 56px;
+  }
+
   #messages {
     padding: 1rem 0.75rem;
     gap: 1rem;
   }
 
   .message {
-    padding: 0.875rem 1rem;
-    font-size: 0.875rem;
-  }
-
-  .input-container {
-    padding: 0.375rem;
-  }
-
-  #user-input {
-    padding: 0.625rem 0.875rem;
     font-size: 0.9rem;
+    padding: 0.75rem;
+    border-radius: var(--radius-lg);
   }
 
-  #send {
-    width: 36px;
-    height: 36px;
-    padding: 0.625rem;
+  .message.user {
+    border-bottom-right-radius: 2px;
   }
 
+  .message.bot {
+    border-bottom-left-radius: 2px;
+  }
+  
+  /* Compact modal on mobile */
   .modal-content {
     width: 95%;
+    max-height: 90dvh;
+    padding: 0;
     border-radius: var(--radius-lg);
+  }
+  
+  .modal-header {
+    padding: 1rem;
+  }
+  
+  .modal-body {
+    padding: 1rem;
+  }
+  
+  .modal-footer {
+    padding: 0.75rem 1rem;
+    flex-direction: column-reverse; /* Stack buttons */
+  }
+  
+  .btn-primary, .btn-secondary {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  #main-content {
+    background: var(--bg-dark); /* Ensure solid background */
   }
 }

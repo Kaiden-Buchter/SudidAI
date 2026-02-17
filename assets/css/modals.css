@@ -1,66 +1,86 @@
-/* Modals and Dialogs */
+/* Modals (Modernized) */
 
 .modal,
 #settings-modal,
 #password-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  animation: fadeIn 0.2s ease-out;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition);
 }
 
-.modal.hidden,
-#settings-modal.hidden,
-#password-modal.hidden {
-  display: none;
+.modal.active, /* Support for class-based toggling */
+.modal:not(.hidden),
+#settings-modal:not(.hidden),
+#password-modal:not(.hidden) {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .modal-content {
   background: var(--bg-surface);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  padding: 2rem;
-  max-width: 500px;
+  padding: 0; /* Let children handle padding */
+  max-width: 520px;
   width: 90%;
-  max-height: 80vh;
+  max-height: 85vh;
   overflow: hidden;
-  box-shadow: 0 20px 60px var(--shadow-lg);
-  animation: scaleIn 0.3s ease-out;
+  box-shadow: var(--shadow-xl);
+  transform: scale(0.95) translateY(10px);
+  transition: transform var(--transition-bounce), opacity var(--transition);
+  opacity: 0;
+}
+
+.modal.active .modal-content,
+.modal:not(.hidden) .modal-content,
+#settings-modal:not(.hidden) .modal-content,
+#password-modal:not(.hidden) .modal-content {
+  transform: scale(1) translateY(0);
+  opacity: 1;
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 2rem;
+  padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
 }
 
 .modal-header h2 {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
+  color: var(--text-primary);
 }
 
 .close-btn {
   background: transparent;
   border: none;
-  color: var(--text-secondary);
-  padding: 0.5rem;
-  width: 36px;
-  height: 36px;
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius);
   cursor: pointer;
   transition: all var(--transition);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+}
+
+.close-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 .close-btn:hover {
@@ -69,35 +89,73 @@
 }
 
 .modal-body {
-  padding: 2rem;
-}
-
-.modal h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: var(--text-primary);
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-height: calc(85vh - 70px); /* Adjust based on header */
 }
 
 .modal p {
   color: var(--text-secondary);
-  font-size: 1rem;
-  margin-bottom: 1rem;
-  line-height: 1.5;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
 }
 
-.modal-warning {
-  color: #ef4444;
-  font-size: 0.9rem;
-  font-weight: 500;
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  background: var(--bg-surface);
 }
 
 .modal-input {
-  background: var(--bg-elevated);
+  width: 100%;
+  background: var(--bg-dark);
   border: 1px solid var(--border);
   color: var(--text-primary);
-  padding: 0.875rem 1.125rem;
-  border-radius: var(--radius-lg);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  transition: border-color var(--transition);
+}
+
+.modal-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-subtle);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
   font-size: 1rem;
   outline: none;
   transition: all var(--transition);

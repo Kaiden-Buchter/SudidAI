@@ -1,33 +1,44 @@
-/* Input Area (Fixed at Bottom) */
+/* Input Area (Modernized) */
 
 #input-wrapper {
-  background: rgba(23, 23, 23, 0.95);
-  backdrop-filter: blur(20px);
+  background: rgba(9, 9, 11, 0.85); /* Matches bg-dark with opacity */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border);
-  padding: 1.5rem;
+  padding: 1.5rem 2rem;
   flex-shrink: 0;
+  position: relative;
+  z-index: 50;
 }
 
 #chat-form {
   max-width: 900px;
   width: 100%;
   margin: 0 auto;
+  position: relative;
 }
 
 .input-container {
   display: flex;
   align-items: flex-end;
-  gap: 0.75rem;
+  gap: 1rem;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  padding: 0.5rem;
-  transition: all var(--transition);
+  padding: 0.75rem;
+  transition: all var(--transition-bounce);
+  box-shadow: var(--shadow-sm);
+}
+
+.input-container:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-light);
 }
 
 .input-container:focus-within {
+  background: var(--bg-surface);
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 0 2px var(--accent-subtle), var(--shadow);
 }
 
 #user-input {
@@ -35,8 +46,8 @@
   background: transparent;
   border: none;
   color: var(--text-primary);
-  padding: 0.75rem 1rem;
-  font-size: 0.95rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
   font-family: inherit;
   resize: none;
   outline: none;
@@ -45,11 +56,11 @@
   line-height: 1.5;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  scrollbar-color: var(--text-muted) transparent;
 }
 
 #user-input::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 #user-input::-webkit-scrollbar-track {
@@ -57,25 +68,21 @@
 }
 
 #user-input::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
-
-#user-input::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+  border-radius: 2px;
 }
 
 #user-input::placeholder {
   color: var(--text-muted);
+  font-weight: 400;
 }
 
 #send {
   background: var(--accent);
   border: none;
   color: white;
-  padding: 0.75rem;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: all var(--transition);
@@ -83,19 +90,29 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  padding: 0;
+}
+
+#send svg, #send i {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
 }
 
 #send:hover:not(:disabled) {
   background: var(--accent-hover);
-  transform: translateY(-1px);
+  transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
 }
 
 #send:active:not(:disabled) {
-  transform: translateY(0);
+  transform: scale(0.95);
 }
 
 #send:disabled {
-  opacity: 0.5;
+  background: var(--bg-hover);
+  color: var(--text-muted);
   cursor: not-allowed;
+  opacity: 0.7;
+}
 }

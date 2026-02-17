@@ -1,4 +1,4 @@
-/* Chat Interface - Messages and Input */
+/* Chat Messages (Modernized) */
 
 #main-content {
   flex: 1;
@@ -7,6 +7,7 @@
   overflow: hidden;
   position: relative;
   min-width: 0;
+  background-color: var(--bg-dark);
 }
 
 #chat-container {
@@ -15,89 +16,97 @@
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  scrollbar-width: thin;
-  scrollbar-color: var(--accent) transparent;
-}
-
-#chat-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-#chat-container::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 10px;
+  scroll-behavior: smooth;
+  padding-bottom: 2rem;
 }
 
 #messages {
   max-width: 900px;
   width: 100%;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .message-wrapper {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  animation: slideIn 0.3s ease-out;
-  align-items: flex-start;
+  animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
 }
 
 .message-wrapper.user-wrapper {
   align-items: flex-end;
 }
 
+.message-wrapper.bot-wrapper {
+  align-items: flex-start;
+}
+
 .message {
-  padding: 1rem 1.25rem;
-  border-radius: var(--radius-lg);
-  line-height: 1.65;
-  word-wrap: break-word;
+  padding: 1rem 1.5rem;
+  line-height: 1.7;
+  word-wrap: break-word; /* Deprecated but needed for legacy support, use overflow-wrap */
+  overflow-wrap: break-word;
   max-width: 85%;
-  font-size: 0.95rem;
+  font-size: 1rem;
   position: relative;
+  transition: transform var(--transition);
+  box-shadow: var(--shadow-sm);
 }
 
 .message.user {
   background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: white;
-  border-radius: var(--radius-lg) var(--radius-lg) 4px var(--radius-lg);
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+  border-radius: var(--radius-xl) var(--radius-xl) 4px var(--radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .message.bot {
   background: var(--bg-surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;
+  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) 4px;
   color: var(--text-primary);
-  align-self: flex-start;
+}
+
+.message-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  opacity: 0.8;
+  padding: 0 0.5rem;
 }
 
 .copy-btn {
-  background: var(--bg-elevated);
+  background: transparent;
   border: 1px solid var(--border);
-  color: var(--text-secondary);
-  padding: 0.5rem 0.75rem;
-  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 500;
   border-radius: var(--radius);
   cursor: pointer;
   transition: all var(--transition);
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.copy-btn i {
-  font-size: 0.875rem;
+  gap: 0.4rem;
+  opacity: 0.8;
 }
 
 .copy-btn:hover {
-  background: var(--bg-hover);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+  opacity: 1;
+}
+
+.copy-btn i {
+  font-size: 0.85rem;
+}
   color: var(--text-primary);
   border-color: var(--border-light);
 }
