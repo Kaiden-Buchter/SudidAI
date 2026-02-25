@@ -61,7 +61,12 @@ function initializeApp() {
 function setupLogoutButton() {
   document.getElementById('logout-btn')?.addEventListener('click', () => {
     if (confirm('Are you sure you want to logout?')) {
-      localStorage.clear();
+      // Clear authentication data but preserve chat history
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_role');
+      localStorage.removeItem('username');
+      localStorage.removeItem('auth_expiration');
+      
       window.location.href = 'login.html';
     }
   });

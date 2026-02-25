@@ -14,7 +14,10 @@ document.getElementById('admin-name').textContent = username;
 
 // Logout
 document.getElementById('logout-btn').addEventListener('click', () => {
-  localStorage.clear();
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('auth_expiration');
+  localStorage.removeItem('user_role');
+  localStorage.removeItem('username');
   window.location.href = 'login.html';
 });
 

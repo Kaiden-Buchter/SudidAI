@@ -7,18 +7,27 @@
   overflow: hidden;
   position: relative;
   min-width: 0;
-  min-height: 0; /* Fixes flexbox scrolling issues */
-  background: transparent; /* Let body background show through */
+  min-height: 0; 
+  background: transparent;
+  z-index: 1; /* Ensure content is clickable */
 }
 
 #chat-container {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* Standard scrolling */
   overflow-x: hidden;
-  scroll-behavior: smooth;
   padding-bottom: 2rem;
-  min-height: 0; /* Fixes flexbox scrolling issues */
-  pointer-events: auto; /* Ensure scrolling works */
+  min-height: 0;
+  pointer-events: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none; /* Prevent bounce effects more aggressively if needed */
+  will-change: scroll-position; /* Hint for browser */
+  scrollbar-gutter: stable; /* Prevent layout shift */
+}
+
+/* Add a utility class for programmatic smooth scrolling if needed */
+.smooth-scroll {
+  scroll-behavior: smooth;
 }
 
 #messages {
