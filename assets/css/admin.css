@@ -82,17 +82,20 @@
 }
 
 .admin-section {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+  background: rgba(28, 28, 32, 0.6); /* Glassy surface */
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-xl);
   padding: 2.5rem 3rem;
   margin-bottom: 2.5rem;
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow var(--transition);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  transition: all var(--transition);
 }
 
 .admin-section:hover {
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .admin-section h2 {
@@ -103,7 +106,7 @@
   gap: 0.75rem;
   font-weight: 600;
   color: var(--text-primary);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: 1rem;
 }
 
@@ -118,10 +121,10 @@
   align-items: flex-end;
   gap: 1.5rem;
   margin-bottom: 2.5rem;
-  background: var(--bg-hover);
+  background: rgba(0, 0, 0, 0.2);
   padding: 1.5rem;
   border-radius: var(--radius-lg);
-  border: 1px dashed var(--border-light);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
 }
 
 .add-user-form input,
@@ -131,8 +134,8 @@
 }
 
 .form-input {
-  background: var(--bg-dark);
-  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-primary);
   padding: 0.8rem 1rem;
   border-radius: var(--radius);
@@ -145,7 +148,7 @@
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-subtle);
-  background: var(--bg-dark);
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .add-btn {
@@ -178,27 +181,28 @@
   border-spacing: 0;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .users-table th {
   text-align: left;
   padding: 1rem 1.5rem;
-  background: var(--bg-elevated);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-secondary);
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .users-table td {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
   transition: background var(--transition-fast);
-  background: var(--bg-surface);
+  background: transparent;
 }
 
 .users-table tr:last-child td {
@@ -206,7 +210,7 @@
 }
 
 .users-table tr:hover td {
-  background: var(--bg-hover);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .role-badge {

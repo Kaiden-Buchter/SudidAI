@@ -9,17 +9,28 @@
 
 #sidebar {
   width: var(--sidebar-width);
-  background: rgba(9, 9, 11, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(9, 9, 11, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  transition: transform var(--transition-bounce), opacity var(--transition-slow);
+  transition: transform var(--transition-bounce), opacity var(--transition-slow), width var(--transition-bounce);
   flex-shrink: 0;
   overflow: hidden;
   position: relative;
   z-index: 20;
+}
+
+#sidebar.sidebar-hidden {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  z-index: 10;
 }
 
 .sidebar-content {

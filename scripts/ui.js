@@ -13,10 +13,12 @@ export function toggleSidebar() {
   const isHidden = sidebar.classList.contains('sidebar-hidden');
   
   if (isHidden) {
-    toggleIcon.classList.replace('fa-bars', 'fa-chevron-right');
+    toggleIcon.classList.remove('fa-bars');
+    toggleIcon.classList.add('fa-chevron-right');
     sidebarToggle.classList.add('sidebar-closed');
   } else {
-    toggleIcon.classList.replace('fa-chevron-right', 'fa-bars');
+    toggleIcon.classList.remove('fa-chevron-right');
+    toggleIcon.classList.add('fa-bars');
     sidebarToggle.classList.remove('sidebar-closed');
   }
 }

@@ -16,7 +16,9 @@
     width: 280px;
     box-shadow: var(--shadow-xl);
     border-right: none;
-    background: var(--bg-dark); /* Solid background for overlay */
+    background: rgba(9, 9, 11, 0.85); /* Glassy background for overlay */
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
   }
 
   #sidebar.sidebar-hidden {

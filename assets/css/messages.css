@@ -1,4 +1,4 @@
-/* Chat Messages (Modernized) */
+/* Chat Messages (Modernized & Glassmorphic) */
 
 #main-content {
   flex: 1;
@@ -7,17 +7,18 @@
   overflow: hidden;
   position: relative;
   min-width: 0;
-  background-color: var(--bg-dark);
+  min-height: 0; /* Fixes flexbox scrolling issues */
+  background: transparent; /* Let body background show through */
 }
 
 #chat-container {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
   scroll-behavior: smooth;
   padding-bottom: 2rem;
+  min-height: 0; /* Fixes flexbox scrolling issues */
+  pointer-events: auto; /* Ensure scrolling works */
 }
 
 #messages {
@@ -56,18 +57,21 @@
   position: relative;
   transition: transform var(--transition);
   box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .message.user {
-  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(124, 58, 237, 0.9));
   color: white;
   border-radius: var(--radius-xl) var(--radius-xl) 4px var(--radius-xl);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
 }
 
 .message.bot {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+  background: rgba(28, 28, 32, 0.6); /* Glassy bot message */
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) 4px;
   color: var(--text-primary);
 }
@@ -106,7 +110,6 @@
 
 .copy-btn i {
   font-size: 0.85rem;
-}
   color: var(--text-primary);
   border-color: var(--border-light);
 }

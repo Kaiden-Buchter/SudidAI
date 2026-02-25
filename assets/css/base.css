@@ -1,49 +1,49 @@
 /* Modern CSS Reset & Base Variables */
 
 :root {
-  /* Core Colors - Zinc Palette */
-  --bg-dark: #09090b;       /* Zinc 950 */
-  --bg-main: #18181b;       /* Zinc 900 */
-  --bg-surface: #27272a;    /* Zinc 800 */
-  --bg-elevated: #3f3f46;   /* Zinc 700 */
-  --bg-hover: #52525b;      /* Zinc 600 */
+  /* Core Colors - Deep Dark Glassmorphic Palette */
+  --bg-dark: #030305;       /* Almost black */
+  --bg-main: rgba(18, 18, 20, 0.6);
+  --bg-surface: rgba(28, 28, 32, 0.5);
+  --bg-elevated: rgba(45, 45, 50, 0.6);
+  --bg-hover: rgba(255, 255, 255, 0.05);
   
   /* Text Colors */
-  --text-primary: #f4f4f5;  /* Zinc 100 */
-  --text-secondary: #d4d4d8;/* Zinc 300 */
-  --text-muted: #a1a1aa;    /* Zinc 400 */
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
   
-  /* Brand Colors - Violet */
-  --accent: #8b5cf6;        /* Violet 500 */
-  --accent-hover: #7c3aed;  /* Violet 600 */
-  --accent-light: #a78bfa;  /* Violet 400 */
-  --accent-subtle: rgba(139, 92, 246, 0.15);
+  /* Brand Colors - Vibrant Violet */
+  --accent: #8b5cf6;
+  --accent-hover: #a78bfa;
+  --accent-light: #c4b5fd;
+  --accent-subtle: rgba(139, 92, 246, 0.2);
 
   /* Borders & Shadows */
-  --border: rgba(255, 255, 255, 0.08); /* More subtle */
-  --border-light: rgba(255, 255, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-light: rgba(255, 255, 255, 0.1);
   --border-active: rgba(139, 92, 246, 0.5);
   
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-sm: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+  --shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 16px 32px -8px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.5);
 
   /* Layout */
   --sidebar-width: 280px;
   --topnav-height: 64px;
   
   /* Radius */
-  --radius-sm: 6px;
-  --radius: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
   --radius-full: 9999px;
 
   /* Transitions */
-  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
   --transition-fast: 0.15s ease-out;
-  --transition-slow: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -70,14 +70,25 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Subtle background effects */
+/* Deep Glassmorphic Background Effects */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background: 
-    radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(167, 139, 250, 0.05), transparent 25%);
+    radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15), transparent 40%),
+    radial-gradient(circle at 100% 100%, rgba(124, 58, 237, 0.1), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(167, 139, 250, 0.05), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Optional subtle noise texture for premium feel */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 0;
 }
@@ -88,6 +99,7 @@ body::before {
   height: 100vh;
   position: relative;
   z-index: 1;
+  pointer-events: auto; /* Ensure app can receive events */
 }
 
 /* Custom Scrollbar */
