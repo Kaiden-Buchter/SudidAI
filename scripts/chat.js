@@ -1,3 +1,5 @@
+import { renderSafeMarkdown } from './markdown.js';
+
 // Constants
 const STORAGE_KEYS = {
   CHATS: 'chatHistories',
@@ -81,12 +83,9 @@ export function addMessage(role, content, skipHistory = false, messageId = null)
  */
 function createMessageElement(role, content, messageId) {
   const isUser = role === 'user';
-  const classList = ['message-wrapper'];
-  if (isUser) classList.push('user-wrapper');
+  const classList = ['message-wrapper', ...(isUser ? ['user-wrapper'] : [])];
 
-  const parsedContent = isUser 
-    ? escapeHTML(content)
-    : marked.parse(content);
+  const parsedContent = isUser ? escapeHTML(content) : renderSafeMarkdown(content);
 
   const wrapper = createElement('div', {
     classList,
@@ -109,13 +108,13 @@ function createMessageElement(role, content, messageId) {
  * Process code block element
  */
 function processCodeBlock(pre) {
-  pre.classList.add('line-numbers');
-  
   const codeElement = pre.querySelector('code');
   if (!codeElement) {
     pre.setAttribute('data-language', 'code');
     return;
   }
+
+  normalizeCodeBlockWhitespace(codeElement);
 
   // Detect language
   const language = detectCodeLanguage(codeElement);
@@ -127,6 +126,26 @@ function processCodeBlock(pre) {
 
   // Add copy button
   addCodeCopyButton(pre, codeElement);
+}
+
+/**
+ * Remove one accidental leading and trailing newline from fenced markdown code.
+ */
+function normalizeCodeBlockWhitespace(codeElement) {
+  const raw = codeElement.textContent || '';
+  let normalized = raw;
+
+  if (normalized.startsWith('\n')) {
+    normalized = normalized.slice(1);
+  }
+
+  if (normalized.endsWith('\n')) {
+    normalized = normalized.slice(0, -1);
+  }
+
+  if (normalized !== raw) {
+    codeElement.textContent = normalized;
+  }
 }
 
 /**

@@ -10,13 +10,14 @@
         content="default-src 'self'; 
         script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; 
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
+      img-src 'self' data: https:; 
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
-        connect-src 'self' https://api.sudid.org; 
+        connect-src 'self' https://api.sudid.org https://cdn.jsdelivr.net; 
         object-src 'none'; 
         upgrade-insecure-requests;">
   <title>Sudid</title>
   <link rel="icon" type="image/icon" href="assets/favicon.ico">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
@@ -93,7 +94,7 @@
     </div>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="hidden" role="dialog" aria-labelledby="settings-title">
+    <div id="settings-modal" class="modal hidden" role="dialog" aria-labelledby="settings-title">
       <div class="modal-content">
         <div class="modal-header">
           <h2 id="settings-title">Settings</h2>
@@ -113,6 +114,7 @@
 
   <!-- External Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
   <script type="module" src="scripts/main.js"></script>  

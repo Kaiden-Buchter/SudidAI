@@ -16,6 +16,8 @@ import {
  * Application initialization
  */
 document.addEventListener('DOMContentLoaded', async () => {
+  configureMarkdownRenderer();
+
   // Check authentication first
   const isAuthenticated = await ensureAuthenticated();
   if (!isAuthenticated) {
@@ -25,16 +27,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Initialize application components
   initializeApp();
-  
-  // Setup code highlighting after DOM is loaded
-  if (document.readyState === 'complete') {
-    setTimeout(initializeCodeHighlighting, 200);
-  } else {
-    window.addEventListener('load', () => {
-      setTimeout(initializeCodeHighlighting, 200);
-    });
-  }
+
+  // Delay slightly so late-rendered content is present before first highlight pass.
+  setTimeout(initializeCodeHighlighting, 200);
 });
+
+/**
+ * Configure markdown renderer defaults for chat content
+ */
+function configureMarkdownRenderer() {
+  if (!window.marked) return;
+
+  marked.setOptions({
+    gfm: true,
+    breaks: true,
+  });
+}
 
 /**
  * Initialize all application features
@@ -153,6 +161,7 @@ function ensureCodeBlockLanguage(pre) {
     pre.setAttribute('data-language', 'code');
     return;
   }
+  normalizeCodeBlockWhitespace(codeElement);
   
   // Check for existing language class
   const codeClass = Array.from(codeElement.classList)
@@ -168,6 +177,26 @@ function ensureCodeBlockLanguage(pre) {
   const language = detectLanguage(codeElement.textContent || '');
   pre.setAttribute('data-language', language);
   codeElement.classList.add(`language-${language}`);
+}
+
+/**
+ * Remove one accidental leading and trailing newline from fenced markdown code.
+ */
+function normalizeCodeBlockWhitespace(codeElement) {
+  const raw = codeElement.textContent || '';
+  let normalized = raw;
+
+  if (normalized.startsWith('\n')) {
+    normalized = normalized.slice(1);
+  }
+
+  if (normalized.endsWith('\n')) {
+    normalized = normalized.slice(0, -1);
+  }
+
+  if (normalized !== raw) {
+    codeElement.textContent = normalized;
+  }
 }
 
 /**
@@ -257,17 +286,18 @@ function fallbackCopyToClipboard(text, button) {
  * Show copy success feedback
  */
 function showCopySuccess(button) {
-  button.innerHTML = '<i class="fa-solid fa-check"></i>';
-  setTimeout(() => {
-    button.innerHTML = '<i class="fa-regular fa-copy"></i>';
-  }, 2000);
+  setCopyButtonIcon(button, '<i class="fa-solid fa-check"></i>');
 }
 
 /**
  * Show copy error feedback
  */
 function showCopyError(button) {
-  button.innerHTML = '<i class="fa-solid fa-times"></i>';
+  setCopyButtonIcon(button, '<i class="fa-solid fa-times"></i>');
+}
+
+function setCopyButtonIcon(button, iconHtml) {
+  button.innerHTML = iconHtml;
   setTimeout(() => {
     button.innerHTML = '<i class="fa-regular fa-copy"></i>';
   }, 2000);

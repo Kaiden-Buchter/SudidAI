@@ -4,6 +4,8 @@
 export function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
   const sidebarToggle = document.getElementById('sidebar-toggle');
+  if (!sidebar || !sidebarToggle) return;
+
   const toggleIcon = sidebarToggle.querySelector('i');
 
   sidebar.classList.toggle('sidebar-hidden');
@@ -11,16 +13,12 @@ export function toggleSidebar() {
 
   // Update toggle button icon
   const isHidden = sidebar.classList.contains('sidebar-hidden');
-  
-  if (isHidden) {
-    toggleIcon.classList.remove('fa-bars');
-    toggleIcon.classList.add('fa-chevron-right');
-    sidebarToggle.classList.add('sidebar-closed');
-  } else {
-    toggleIcon.classList.remove('fa-chevron-right');
-    toggleIcon.classList.add('fa-bars');
-    sidebarToggle.classList.remove('sidebar-closed');
+
+  if (toggleIcon) {
+    toggleIcon.classList.toggle('fa-bars', !isHidden);
+    toggleIcon.classList.toggle('fa-chevron-right', isHidden);
   }
+  sidebarToggle.classList.toggle('sidebar-closed', isHidden);
 }
 
 /**
@@ -29,6 +27,7 @@ export function toggleSidebar() {
 export function setupSearch() {
   const searchBtn = document.getElementById('search-btn');
   const chatList = document.getElementById('chat-list');
+  if (!searchBtn || !chatList) return;
 
   searchBtn.addEventListener('click', () => {
     const searchInput = document.querySelector('.search-input');
@@ -94,6 +93,7 @@ export function setupSettingsModal() {
   const settingsLink = document.getElementById('settings-link');
   const settingsModal = document.getElementById('settings-modal');
   const closeBtn = document.getElementById('close-settings-btn');
+  if (!settingsLink || !settingsModal || !closeBtn) return;
 
   settingsLink.addEventListener('click', () => openModal(settingsModal));
   closeBtn.addEventListener('click', () => closeModal(settingsModal));
@@ -119,16 +119,16 @@ export function setupSettingsModal() {
 function openModal(modal) {
   modal.classList.remove('hidden');
   modal.setAttribute('aria-hidden', 'false');
-  modal.style.display = 'flex';
 }
 
 /**
  * Close modal
  */
 function closeModal(modal) {
+  const focused = modal.querySelector(':focus');
+  if (focused) focused.blur();
   modal.classList.add('hidden');
   modal.setAttribute('aria-hidden', 'true');
-  modal.style.display = 'none';
 }
 
 /**
@@ -136,6 +136,7 @@ function closeModal(modal) {
  */
 export function setupAutoSave() {
   const chatInput = document.getElementById('user-input');
+  if (!chatInput) return;
   
   // Restore draft
   chatInput.value = localStorage.getItem('chat_draft') || '';
@@ -183,6 +184,7 @@ export function createShowPasswordPrompt() {
 function createPasswordModal(resolve) {
   const modal = createElement('div', {
     id: 'password-modal',
+    className: 'modal',
   });
 
   const modalContent = createElement('div', {

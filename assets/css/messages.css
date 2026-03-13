@@ -1,51 +1,35 @@
-/* Chat Messages (Modernized & Glassmorphic) */
+/* Chat Area */
 
 #main-content {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  position: relative;
+  flex: 1;
   min-width: 0;
-  min-height: 0; 
-  background: transparent;
-  z-index: 1; /* Ensure content is clickable */
+  min-height: 0;
 }
 
 #chat-container {
   flex: 1;
-  overflow-y: auto; /* Standard scrolling */
-  overflow-x: hidden;
-  padding-bottom: 2rem;
   min-height: 0;
-  pointer-events: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: none; /* Prevent bounce effects more aggressively if needed */
-  will-change: scroll-position; /* Hint for browser */
-  scrollbar-gutter: stable; /* Prevent layout shift */
-}
-
-/* Add a utility class for programmatic smooth scrolling if needed */
-.smooth-scroll {
-  scroll-behavior: smooth;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 #messages {
-  max-width: 900px;
-  width: 100%;
+  width: min(920px, 100%);
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2.1rem 1.1rem 2.4rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.4rem;
 }
 
 .message-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  align-items: flex-start;
   width: 100%;
+  animation: revealUp 380ms ease;
 }
 
 .message-wrapper.user-wrapper {
@@ -57,86 +41,138 @@
 }
 
 .message {
-  padding: 1rem 1.5rem;
-  line-height: 1.7;
-  word-wrap: break-word; /* Deprecated but needed for legacy support, use overflow-wrap */
-  overflow-wrap: break-word;
-  max-width: 85%;
-  font-size: 1rem;
-  position: relative;
-  transition: transform var(--transition);
+  max-width: min(86%, 760px);
+  padding: 0.95rem 1.08rem;
+  border-radius: 16px;
+  border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  font-size: 0.98rem;
+  line-height: 1.68;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .message.user {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(124, 58, 237, 0.9));
-  color: white;
-  border-radius: var(--radius-xl) var(--radius-xl) 4px var(--radius-xl);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+  background: linear-gradient(135deg, #0f766e 0%, #128276 55%, #0a5a54 100%);
+  color: #f4fffd;
+  border-color: rgba(15, 118, 110, 0.45);
+  border-bottom-right-radius: 4px;
 }
 
 .message.bot {
-  background: rgba(28, 28, 32, 0.6); /* Glassy bot message */
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) 4px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(252, 248, 240, 0.88));
   color: var(--text-primary);
+  border-color: rgba(31, 42, 48, 0.16);
+  border-bottom-left-radius: 4px;
+}
+
+.message.bot p,
+.message.bot ul,
+.message.bot ol,
+.message.bot pre,
+.message.bot blockquote {
+  margin: 0.65rem 0;
+}
+
+.message.bot p:first-child,
+.message.bot ul:first-child,
+.message.bot ol:first-child,
+.message.bot pre:first-child {
+  margin-top: 0;
+}
+
+.message.bot p:last-child,
+.message.bot ul:last-child,
+.message.bot ol:last-child,
+.message.bot pre:last-child {
+  margin-bottom: 0;
+}
+
+.message.bot ul,
+.message.bot ol {
+  padding-left: 1.55rem;
+  list-style-position: outside;
+}
+
+.message.bot li {
+  margin: 0.2rem 0;
+  padding-left: 0.2rem;
+}
+
+.message.bot ul li {
+  list-style: disc;
+}
+
+.message.bot ol li {
+  list-style: decimal;
+}
+
+.message.bot ul ul,
+.message.bot ol ol,
+.message.bot ul ol,
+.message.bot ol ul {
+  margin: 0.3rem 0;
+  padding-left: 1.35rem;
+}
+
+.message.bot ol + ul,
+.message.bot ol + p + ul {
+  margin-left: 1rem;
 }
 
 .message-meta {
-  font-size: 0.75rem;
+  margin-top: 0.34rem;
+  padding: 0 0.3rem;
   color: var(--text-muted);
-  margin-top: 0.25rem;
-  opacity: 0.8;
-  padding: 0 0.5rem;
+  font-size: 0.73rem;
 }
 
 .copy-btn {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  padding: 0.4rem 0.8rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: all var(--transition);
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
+  align-self: flex-start;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  opacity: 0.8;
+  justify-content: center;
+  width: auto;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
+  border-radius: 10px;
+  padding: 0.3rem 0.68rem;
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.message-wrapper.user-wrapper .copy-btn {
+  align-self: flex-end;
 }
 
 .copy-btn:hover {
-  background: var(--bg-elevated);
+  background: #ffffff;
   color: var(--text-primary);
-  border-color: var(--border-light);
-  opacity: 1;
-}
-
-.copy-btn i {
-  font-size: 0.85rem;
-  color: var(--text-primary);
-  border-color: var(--border-light);
+  border-color: var(--border-strong);
 }
 
 .typing-indicator {
-  display: flex;
-  gap: 6px;
-  padding: 1rem 1.25rem;
+  display: inline-flex;
   align-items: center;
+  gap: 6px;
+  padding: 0.5rem;
 }
 
 .typing-indicator span {
   width: 8px;
   height: 8px;
-  background: var(--accent-light);
   border-radius: 50%;
-  animation: bounce 1.4s infinite ease-in-out;
+  background: var(--accent-2);
+  animation: bounce 1.25s infinite ease-in-out;
 }
 
-.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
-.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.24s;
+}

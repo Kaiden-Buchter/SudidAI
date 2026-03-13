@@ -2,6 +2,10 @@ const API_BASE_URL = 'https://api.sudid.org/api';
 const loginForm = document.getElementById('login-form');
 const errorMessage = document.getElementById('error-message');
 const loginBtn = loginForm.querySelector('.login-btn');
+const LOGIN_IDLE_ICON = '<i class="fa-solid fa-right-to-bracket"></i> Sign In';
+const LOGIN_LOADING_ICON = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
+
+redirectIfAuthenticated();
 
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -14,8 +18,7 @@ loginForm.addEventListener('submit', async (e) => {
     return;
   }
 
-  loginBtn.disabled = true;
-  loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
+  setLoginLoading(true);
   errorMessage.classList.remove('show');
 
   try {
@@ -32,23 +35,16 @@ loginForm.addEventListener('submit', async (e) => {
       localStorage.setItem('auth_expiration', data.expiration);
       localStorage.setItem('user_role', data.role);
       localStorage.setItem('username', username);
-      
-      // Redirect based on role
-      if (data.role === 'admin') {
-        window.location.href = 'admin.html';
-      } else {
-        window.location.href = 'index.html';
-      }
+
+      redirectByRole(data.role);
     } else {
       showError(data.error || 'Invalid username or password');
-      loginBtn.disabled = false;
-      loginBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In';
+      setLoginLoading(false);
     }
   } catch (error) {
     console.error('Login error:', error);
     showError('Connection error. Please try again later.');
-    loginBtn.disabled = false;
-    loginBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In';
+    setLoginLoading(false);
   }
 });
 
@@ -57,15 +53,21 @@ function showError(message) {
   errorMessage.classList.add('show');
 }
 
-// Check if already logged in
-const token = localStorage.getItem('auth_token');
-const expiration = localStorage.getItem('auth_expiration');
-const role = localStorage.getItem('user_role');
+function setLoginLoading(isLoading) {
+  loginBtn.disabled = isLoading;
+  loginBtn.innerHTML = isLoading ? LOGIN_LOADING_ICON : LOGIN_IDLE_ICON;
+}
 
-if (token && expiration && Date.now() < parseInt(expiration, 10)) {
-  if (role === 'admin') {
-    window.location.href = 'admin.html';
-  } else {
-    window.location.href = 'index.html';
+function redirectByRole(role) {
+  window.location.href = role === 'admin' ? 'admin.html' : 'index.html';
+}
+
+function redirectIfAuthenticated() {
+  const token = localStorage.getItem('auth_token');
+  const expiration = localStorage.getItem('auth_expiration');
+  const role = localStorage.getItem('user_role');
+
+  if (token && expiration && Date.now() < parseInt(expiration, 10)) {
+    redirectByRole(role);
   }
 }

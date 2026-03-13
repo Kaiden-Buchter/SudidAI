@@ -1,108 +1,108 @@
-/* Modern CSS Reset & Base Variables */
+/* Base Theme: Editorial Sunrise */
 
 :root {
-  /* Core Colors - Deep Dark Glassmorphic Palette */
-  --bg-dark: #030305;       /* Almost black */
-  --bg-main: rgba(18, 18, 20, 0.6);
-  --bg-surface: rgba(28, 28, 32, 0.5);
-  --bg-elevated: rgba(45, 45, 50, 0.6);
-  --bg-hover: rgba(255, 255, 255, 0.05);
-  
-  /* Text Colors */
-  --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  
-  /* Brand Colors - Vibrant Violet */
-  --accent: #8b5cf6;
-  --accent-hover: #a78bfa;
-  --accent-light: #c4b5fd;
-  --accent-subtle: rgba(139, 92, 246, 0.2);
+  --bg-main: #f6f2e8;
+  --bg-soft: #efe8db;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-strong: #fffdf7;
+  --surface-accent: #f2f7f5;
 
-  /* Borders & Shadows */
-  --border: rgba(255, 255, 255, 0.06);
-  --border-light: rgba(255, 255, 255, 0.1);
-  --border-active: rgba(139, 92, 246, 0.5);
-  
-  --shadow-sm: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
-  --shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 16px 32px -8px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.5);
+  --text-primary: #1f2a30;
+  --text-secondary: #43525b;
+  --text-muted: #6d7b84;
 
-  /* Layout */
-  --sidebar-width: 280px;
-  --topnav-height: 64px;
-  
-  /* Radius */
-  --radius-sm: 8px;
-  --radius: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-  --radius-full: 9999px;
+  --accent: #0f766e;
+  --accent-hover: #0a5a54;
+  --accent-soft: rgba(15, 118, 110, 0.12);
+  --accent-2: #e76f51;
+  --accent-2-soft: rgba(231, 111, 81, 0.14);
 
-  /* Transitions */
-  --transition: 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-  --transition-fast: 0.15s ease-out;
-  --transition-slow: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --border: rgba(31, 42, 48, 0.14);
+  --border-strong: rgba(31, 42, 48, 0.24);
+
+  --shadow-sm: 0 4px 12px rgba(31, 42, 48, 0.08);
+  --shadow: 0 16px 40px rgba(31, 42, 48, 0.12);
+  --shadow-lg: 0 26px 60px rgba(31, 42, 48, 0.16);
+
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 30px;
+  --radius-pill: 999px;
+
+  --sidebar-width: 300px;
+  --topnav-height: 72px;
+
+  --transition-fast: 160ms ease;
+  --transition: 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 html {
-  color-scheme: dark;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: var(--bg-dark);
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
   color: var(--text-primary);
-  line-height: 1.6;
-  height: 100vh;
+  background: linear-gradient(135deg, var(--bg-main) 0%, #f2ece1 48%, #e8f2ef 100%);
+  min-height: 100vh;
   overflow: hidden;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Deep Glassmorphic Background Effects */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: 
-    radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15), transparent 40%),
-    radial-gradient(circle at 100% 100%, rgba(124, 58, 237, 0.1), transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(167, 139, 250, 0.05), transparent 60%);
   pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(231, 111, 81, 0.18), transparent 38%),
+    radial-gradient(circle at 84% 16%, rgba(15, 118, 110, 0.2), transparent 34%),
+    radial-gradient(circle at 70% 90%, rgba(217, 119, 6, 0.12), transparent 40%);
   z-index: 0;
 }
 
-/* Optional subtle noise texture for premium feel */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
   pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.26) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: radial-gradient(circle at 50% 50%, black 38%, transparent 95%);
+  opacity: 0.32;
   z-index: 0;
 }
 
 #app {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   height: 100vh;
-  position: relative;
-  z-index: 1;
-  pointer-events: auto; /* Ensure app can receive events */
 }
 
-/* Custom Scrollbar */
+.logo-accent {
+  color: var(--accent);
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -113,17 +113,13 @@ body::after {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-elevated);
-  border: 3px solid var(--bg-dark); /* Creates padding effect */
-  border-radius: 10px;
+  background: rgba(31, 42, 48, 0.24);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--bg-hover);
-  border-color: var(--bg-dark);
-}
-
-::selection {
-  background: var(--accent);
-  color: white;
+  background: rgba(31, 42, 48, 0.38);
+  background-clip: content-box;
 }

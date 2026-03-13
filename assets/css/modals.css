@@ -1,393 +1,174 @@
-/* Modals (Modernized) */
+/* Modals */
 
-.modal,
-#settings-modal,
-#password-modal {
+.modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  background: rgba(29, 38, 43, 0.44);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition);
 }
 
-.modal.active, /* Support for class-based toggling */
-.modal:not(.hidden),
-#settings-modal:not(.hidden),
-#password-modal:not(.hidden) {
+.modal:not(.hidden) {
   opacity: 1;
   pointer-events: auto;
 }
 
 .modal-content {
-  background: rgba(28, 28, 32, 0.75); /* Glassy modal */
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-xl);
-  padding: 0; /* Let children handle padding */
-  max-width: 520px;
-  width: 90%;
-  max-height: 85vh;
+  width: min(560px, 92vw);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(255, 251, 242, 0.96));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(8px) scale(0.98);
+  transition: transform var(--transition);
   overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
-  transform: scale(0.95) translateY(10px);
-  transition: transform var(--transition-bounce), opacity var(--transition);
-  opacity: 0;
+  padding: 1.25rem;
 }
 
-.modal.active .modal-content,
-.modal:not(.hidden) .modal-content,
-#settings-modal:not(.hidden) .modal-content,
-#password-modal:not(.hidden) .modal-content {
-  transform: scale(1) translateY(0);
-  opacity: 1;
+.modal:not(.hidden) .modal-content {
+  transform: translateY(0) scale(1);
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
+  padding-bottom: 0.85rem;
+  margin-bottom: 0.95rem;
+  border-bottom: 1px dashed var(--border);
 }
 
-.modal-header h2 {
-  font-size: 1.1rem;
-  font-weight: 600;
+.modal-header h2,
+.modal-content h2 {
   margin: 0;
+  font-family: 'Sora', 'Space Grotesk', sans-serif;
+  font-size: 1.2rem;
   color: var(--text-primary);
 }
 
 .close-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius);
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all var(--transition);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-btn svg {
-  width: 20px;
-  height: 20px;
 }
 
 .close-btn:hover {
-  background: var(--bg-elevated);
   color: var(--text-primary);
+  border-color: var(--border-strong);
 }
 
 .modal-body {
-  padding: 1.5rem;
-  overflow-y: auto;
-  max-height: calc(85vh - 70px); /* Adjust based on header */
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .modal p {
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.6;
-  margin-bottom: 1.25rem;
 }
 
-.modal-footer {
-  padding: 1rem 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  background: rgba(255, 255, 255, 0.02);
+.modal-warning {
+  color: #a7442f;
+  font-weight: 600;
 }
 
-.modal-input {
+.modal-content input[type='text'],
+.modal-content input[type='password'] {
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius);
-  margin-bottom: 1rem;
-  transition: all var(--transition);
-}
-
-.modal-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-subtle);
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background var(--transition);
-}
-
-.btn-primary:hover {
-  background: var(--accent-hover);
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--text-secondary);
   border: 1px solid var(--border);
-  padding: 0.6rem 1.2rem;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: all var(--transition);
-}
-
-.btn-secondary:hover {
-  background: var(--bg-elevated);
+  border-radius: 12px;
+  padding: 0.72rem 0.84rem;
+  font: inherit;
+  background: rgba(255, 255, 255, 0.86);
   color: var(--text-primary);
-}
-  font-size: 1rem;
   outline: none;
-  transition: all var(--transition);
-  width: 100%;
-  font-family: inherit;
-  margin-bottom: 1.5rem;
 }
 
-.modal-input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
-  background: var(--bg-surface);
+.modal-content input[type='text']:focus,
+.modal-content input[type='password']:focus {
+  border-color: rgba(15, 118, 110, 0.45);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
 }
 
-.modal-buttons {
+.modal-buttons,
+.modal-footer {
+  margin-top: 1rem;
   display: flex;
-  gap: 0.75rem;
+  gap: 0.6rem;
   justify-content: flex-end;
 }
 
-.modal-btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-lg);
-  font-size: 0.95rem;
-  font-weight: 500;
+.modal-btn,
+#password-form button {
+  border-radius: 10px;
+  padding: 0.62rem 1rem;
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 600;
   cursor: pointer;
-  border: none;
-  transition: all var(--transition);
-  font-family: inherit;
+}
+
+.confirm-btn,
+#password-form button {
+  background: var(--accent);
+  color: #f3fffd;
+}
+
+.confirm-btn:hover,
+#password-form button:hover {
+  background: var(--accent-hover);
 }
 
 .cancel-btn {
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--text-secondary);
+  border-color: var(--border);
 }
 
 .cancel-btn:hover {
-  background: var(--bg-hover);
-  border-color: var(--border-light);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
 }
 
-.confirm-btn {
-  background: var(--accent);
-  color: white;
+.modal-buttons .delete-btn,
+.modal-footer .delete-btn {
+  background: #b9432d;
+  color: #fff5ef;
 }
 
-.confirm-btn:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+.modal-buttons .delete-btn:hover,
+.modal-footer .delete-btn:hover {
+  background: #9f3a28;
 }
 
-.delete-btn {
-  background: #dc2626;
-  color: white;
-}
-
-.delete-btn:hover {
-  background: #b91c1c;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
-}
-
-/* Settings and Forms */
 .setting-option {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  background: var(--bg-elevated);
+  gap: 1rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: all var(--transition);
-  margin: 0.75rem 0;
+  border-radius: 12px;
+  padding: 0.8rem 0.9rem;
+  background: rgba(255, 255, 255, 0.75);
 }
 
-.setting-option:hover {
-  background: var(--bg-hover);
-  border-color: var(--border-light);
-}
-
-.setting-option span {
-  font-size: 0.95rem;
-  color: var(--text-primary);
-}
-
-.search-input,
-.modal-content input[type="text"],
-.modal-content input[type="password"] {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
-  padding: 0.875rem 1.125rem;
-  border-radius: var(--radius-lg);
-  font-size: 0.95rem;
-  outline: none;
-  transition: all var(--transition);
-  width: 100%;
-  font-family: inherit;
-}
-
-.search-input:focus,
-.modal-content input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
-  background: var(--bg-surface);
-}
-
-.search-input {
-  margin-bottom: 1rem;
-}
-
-/* Password Modal */
 #password-modal .modal-content {
-  padding: 2rem;
+  width: min(420px, 92vw);
 }
 
-#password-modal form {
+#password-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-}
-
-#password-modal label {
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-#password-modal input[type="password"] {
-  margin: 0;
-}
-
-#password-modal button[type="submit"] {
-  background: var(--accent);
-  border: none;
-  color: white;
-  padding: 0.875rem 1.5rem;
-  border-radius: var(--radius-lg);
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition);
-  margin: 0;
-}
-
-#password-modal button[type="submit"]:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
-}
-
-#password-modal button[type="submit"]:active {
-  transform: translateY(0);
-}
-
-/* Checkbox Toggle */
-input[type="checkbox"] {
-  appearance: none;
-  width: 44px;
-  height: 24px;
-  background: var(--bg-hover);
-  border: 2px solid var(--border-light);
-  border-radius: 12px;
-  cursor: pointer;
-  position: relative;
-  transition: all var(--transition);
-  flex-shrink: 0;
-}
-
-input[type="checkbox"]::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  background: white;
-  border-radius: 50%;
-  transition: all var(--transition);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-input[type="checkbox"]:checked {
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-input[type="checkbox"]:checked::after {
-  left: 22px;
-}
-
-/* Dropdown Menu */
-.menu {
-  position: absolute;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: 0.5rem;
-  box-shadow: 0 10px 40px var(--shadow-lg);
-  z-index: 1000;
-  min-width: 180px;
-  animation: scaleIn 0.15s ease-out;
-}
-
-.menu-item {
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: all var(--transition);
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  width: 100%;
-  text-align: left;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.menu-item:hover {
-  background: var(--bg-hover);
-}
-
-.menu-item i {
-  width: 16px;
-  color: var(--text-secondary);
+  gap: 0.7rem;
 }

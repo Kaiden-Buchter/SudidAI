@@ -1,117 +1,78 @@
-/* Input Area (Modernized & Glassmorphic) */
+/* Input Composer */
 
 #input-wrapper {
-  background: linear-gradient(to top, rgba(3, 3, 5, 0.9) 0%, rgba(3, 3, 5, 0) 100%);
-  padding: 1.5rem 2rem;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 50;
+  padding: 1rem 1rem 1.15rem;
+  background: linear-gradient(180deg, rgba(246, 242, 232, 0.12), rgba(246, 242, 232, 0.85) 40%, rgba(246, 242, 232, 0.96));
+  border-top: 1px solid rgba(31, 42, 48, 0.1);
+  backdrop-filter: blur(8px);
 }
 
 #chat-form {
-  max-width: 900px;
-  width: 100%;
+  width: min(920px, 100%);
   margin: 0 auto;
-  position: relative;
 }
 
 .input-container {
   display: flex;
   align-items: flex-end;
-  gap: 1rem;
-  background: rgba(28, 28, 32, 0.6); /* Glassy surface */
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-xl);
-  padding: 0.75rem;
-  transition: all var(--transition-bounce);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-}
-
-.input-container:hover {
-  background: rgba(45, 45, 50, 0.7);
-  border-color: rgba(255, 255, 255, 0.15);
+  gap: 0.65rem;
+  padding: 0.6rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
 .input-container:focus-within {
-  background: rgba(28, 28, 32, 0.8);
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-subtle), 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  border-color: rgba(15, 118, 110, 0.45);
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12), var(--shadow);
+  transform: translateY(-1px);
 }
 
 #user-input {
   flex: 1;
+  border: 0;
   background: transparent;
-  border: none;
   color: var(--text-primary);
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  font-family: inherit;
   resize: none;
-  outline: none;
-  min-height: 24px;
+  font: inherit;
+  line-height: 1.55;
+  min-height: 26px;
   max-height: 200px;
-  line-height: 1.5;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--text-muted) transparent;
-}
-
-#user-input::-webkit-scrollbar {
-  width: 4px;
-}
-
-#user-input::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-#user-input::-webkit-scrollbar-thumb {
-  background: var(--text-muted);
-  border-radius: 2px;
+  outline: 0;
+  padding: 0.42rem 0.55rem;
 }
 
 #user-input::placeholder {
   color: var(--text-muted);
-  font-weight: 400;
 }
 
 #send {
-  background: var(--accent);
-  border: none;
-  color: white;
   width: 42px;
   height: 42px;
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: all var(--transition);
-  display: flex;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent-2), #cf5d42);
+  color: #fff8f3;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  padding: 0;
-}
-
-#send svg, #send i {
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
+  cursor: pointer;
+  transition: transform var(--transition-fast), filter var(--transition-fast), opacity var(--transition-fast);
 }
 
 #send:hover:not(:disabled) {
-  background: var(--accent-hover);
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+  transform: translateY(-1px);
+  filter: brightness(1.03);
 }
 
 #send:active:not(:disabled) {
-  transform: scale(0.95);
+  transform: translateY(0);
 }
 
 #send:disabled {
-  background: var(--bg-hover);
-  color: var(--text-muted);
+  opacity: 0.55;
   cursor: not-allowed;
-  opacity: 0.7;
-}
+  filter: grayscale(0.3);
 }

@@ -5,11 +5,18 @@ import {
   saveChatsToLocalStorage,
   activeChatId,
 } from './chat.js';
-import { createShowPasswordPrompt } from './ui.js';
+import { renderSafeMarkdown } from './markdown.js';
 
-// State management
 let isWaitingForResponse = false;
 const API_BASE_URL = 'https://api.sudid.org/api';
+const SYSTEM_PROMPT = [
+  'You are a helpful assistant.',
+  'Format responses using valid Markdown.',
+  'Use actual markdown syntax for emphasis (e.g. **bold**, *italic*).',
+  'Use proper lists with indentation for nested items.',
+  'Wrap code in fenced code blocks with language tags (```js, ```python, etc.).',
+  'Do not describe formatting as plain text when you can render it directly.',
+].join(' ');
 
 /**
  * Setup chat form event listeners
@@ -123,9 +130,7 @@ async function sendChatRequest(chatId, userMessage, thinkingId) {
  * Create request body for chat API
  */
 function createRequestBody(chatId, userMessage) {
-  const messages = [
-    { role: 'system', content: 'You are a helpful assistant.' }
-  ];
+  const messages = [{ role: 'system', content: SYSTEM_PROMPT }];
 
   // Add conversation history
   const history = chatHistories[chatId]?.messages || [];
@@ -161,7 +166,7 @@ function handleChatResponse(chatId, data, thinkingId) {
   
   if (thinkingElement && activeChatId === chatId) {
     thinkingElement.querySelector('.message').innerHTML = 
-      marked.parse(botMessage);
+      renderSafeMarkdown(botMessage);
   }
 }
 
@@ -192,22 +197,5 @@ function getAuthToken() {
 export async function ensureAuthenticated() {
   const token = localStorage.getItem('auth_token');
   const expiration = localStorage.getItem('auth_expiration');
-
-  // Check if token exists and is valid
-  if (token && expiration && Date.now() < parseInt(expiration, 10)) {
-    return true;
-  }
-
-  // No valid token, redirect to login
-  return false;
-}
-
-/**
- * Check if current token is valid
- */
-function isTokenValid() {
-  const token = localStorage.getItem('auth_token');
-  const expiration = localStorage.getItem('auth_expiration');
-
-  return token && expiration && Date.now() < parseInt(expiration, 10);
+  return Boolean(token && expiration && Date.now() < parseInt(expiration, 10));
 }

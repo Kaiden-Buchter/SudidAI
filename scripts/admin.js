@@ -1,6 +1,8 @@
 const API_BASE_URL = 'https://api.sudid.org/api';
+const AUTH_KEYS = ['auth_token', 'auth_expiration', 'user_role', 'username'];
 
-// Check authentication
+let usersCache = [];
+
 const token = localStorage.getItem('auth_token');
 const expiration = localStorage.getItem('auth_expiration');
 const role = localStorage.getItem('user_role');
@@ -10,99 +12,39 @@ if (!token || !expiration || Date.now() >= parseInt(expiration, 10) || role !== 
   window.location.href = 'login.html';
 }
 
-document.getElementById('admin-name').textContent = username;
+const adminNameEl = document.getElementById('admin-name');
+const logoutBtn = document.getElementById('logout-btn');
+const refreshBtn = document.getElementById('refresh-users-btn');
+const addUserForm = document.getElementById('add-user-form');
+const newUsernameInput = document.getElementById('new-username');
+const newPasswordInput = document.getElementById('new-password');
+const usersListEl = document.getElementById('users-list');
 
-// Logout
-document.getElementById('logout-btn').addEventListener('click', () => {
-  localStorage.removeItem('auth_token');
-  localStorage.removeItem('auth_expiration');
-  localStorage.removeItem('user_role');
-  localStorage.removeItem('username');
+adminNameEl.textContent = username;
+
+logoutBtn.addEventListener('click', () => {
+  clearAuth();
   window.location.href = 'login.html';
 });
 
-// Manual refresh button
-document.getElementById('refresh-users-btn').addEventListener('click', () => {
-  const btn = document.getElementById('refresh-users-btn');
-  const icon = btn.querySelector('i');
-  
-  // Add spinning animation
+refreshBtn.addEventListener('click', async () => {
+  const icon = refreshBtn.querySelector('i');
   icon.classList.add('fa-spin');
-  btn.disabled = true;
-  
-  loadUsers().finally(() => {
-    icon.classList.remove('fa-spin');
-    btn.disabled = false;
-  });
+  refreshBtn.disabled = true;
+
+  await loadUsers();
+
+  icon.classList.remove('fa-spin');
+  refreshBtn.disabled = false;
 });
 
-// Load users
-async function loadUsers(retryCount = 0) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-
-      if (response.ok) {
-        const users = await response.json();
-        displayUsers(users);
-        resolve();
-      } else if (response.status === 500 && retryCount < 2) {
-        // Retry on 500 error (server might still be processing)
-        console.log(`Server error, retrying... (attempt ${retryCount + 1}/2)`);
-        setTimeout(() => loadUsers(retryCount + 1).then(resolve).catch(reject), 1000);
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Failed to load users:', response.status, errorData);
-        showError(errorData.error || `Failed to load users (${response.status})`);
-        reject(new Error('Failed to load users'));
-      }
-    } catch (error) {
-      console.error('Error loading users:', error);
-      if (retryCount < 2) {
-        console.log(`Network error, retrying... (attempt ${retryCount + 1}/2)`);
-        setTimeout(() => loadUsers(retryCount + 1).then(resolve).catch(reject), 1000);
-      } else {
-        showError('Failed to load users. Please try again.');
-        reject(error);
-      }
-    }
-  });
-}
-
-function displayUsers(users) {
-  const usersList = document.getElementById('users-list');
-  
-  if (users.length === 0) {
-    usersList.innerHTML = '<tr><td colspan="4" class="empty-state">No users found</td></tr>';
-    return;
-  }
-
-  usersList.innerHTML = users.map(user => `
-    <tr>
-      <td>${escapeHtml(user.username)}</td>
-      <td><span class="role-badge ${user.role}">${user.role}</span></td>
-      <td>${new Date(user.created_at).toLocaleDateString()}</td>
-      <td>
-        ${user.role !== 'admin' ? `
-          <button class="delete-user-btn" onclick="deleteUser('${user.username}')">
-            <i class="fa-solid fa-trash"></i> Delete
-          </button>
-        ` : '<span style="color: var(--text-muted);">Protected</span>'}
-      </td>
-    </tr>
-  `).join('');
-}
-
-// Add user
-document.getElementById('add-user-form').addEventListener('submit', async (e) => {
+addUserForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  
-  const username = document.getElementById('new-username').value.trim();
-  const password = document.getElementById('new-password').value;
 
-  if (!username || !password) {
+  const newUsername = newUsernameInput.value.trim();
+  const password = newPasswordInput.value;
+
+  if (!newUsername || !password) {
     showError('Please enter both username and password');
     return;
   }
@@ -110,55 +52,114 @@ document.getElementById('add-user-form').addEventListener('submit', async (e) =>
   try {
     const response = await fetch(`${API_BASE_URL}/users`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ username, password }),
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ username: newUsername, password }),
     });
 
     const data = await response.json().catch(() => ({}));
 
-    if (response.ok) {
-      showSuccess(`User "${username}" added successfully. Click Refresh to update the list.`);
-      document.getElementById('add-user-form').reset();
-      // Don't auto-refresh due to server issues - let user manually refresh
-    } else {
+    if (!response.ok) {
       console.error('Failed to add user:', response.status, data);
       showError(data.error || `Failed to add user (${response.status})`);
+      return;
     }
+
+    usersCache.push({
+      username: newUsername,
+      role: 'user',
+      created_at: new Date().toISOString(),
+    });
+    displayUsers(usersCache);
+    showSuccess(`User "${newUsername}" added successfully.`);
+    addUserForm.reset();
   } catch (error) {
     console.error('Error adding user:', error);
     showError('Failed to add user. Please try again.');
   }
 });
 
-// Delete user
-window.deleteUser = async (username) => {
-  if (!confirm(`Are you sure you want to delete user "${username}"?`)) {
+async function loadUsers() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      headers: authHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Failed to load users:', response.status, errorData);
+      showError(errorData.error || `Failed to load users (${response.status})`);
+      return;
+    }
+
+    usersCache = await response.json();
+    displayUsers(usersCache);
+  } catch (error) {
+    console.error('Error loading users:', error);
+    showError('Failed to load users. Please check your connection.');
+  }
+}
+
+function displayUsers(users) {
+  if (!users.length) {
+    usersListEl.innerHTML = '<tr><td colspan="4" class="empty-state">No users found</td></tr>';
+    return;
+  }
+
+  usersListEl.innerHTML = users.map(user => {
+    const safeUsername = escapeHtml(user.username);
+    const createdAt = user.created_at ? new Date(user.created_at).toLocaleDateString() : '-';
+
+    const actionCell = user.role !== 'admin'
+      ? `<button class="delete-user-btn" data-username="${encodeURIComponent(user.username)}"><i class="fa-solid fa-trash"></i> Delete</button>`
+      : '<span style="color: var(--text-muted);">Protected</span>';
+
+    return `
+      <tr>
+        <td>${safeUsername}</td>
+        <td><span class="role-badge ${user.role}">${user.role}</span></td>
+        <td>${createdAt}</td>
+        <td>${actionCell}</td>
+      </tr>
+    `;
+  }).join('');
+
+  usersListEl.querySelectorAll('.delete-user-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const encoded = btn.getAttribute('data-username');
+      if (encoded) {
+        deleteUser(decodeURIComponent(encoded));
+      }
+    });
+  });
+}
+
+async function deleteUser(targetUsername) {
+  if (!confirm(`Are you sure you want to delete user "${targetUsername}"?`)) {
     return;
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/users/${username}`, {
+    const response = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(targetUsername)}`, {
       method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: authHeaders(),
     });
 
     const data = await response.json().catch(() => ({}));
 
-    if (response.ok) {
-      showSuccess(`User "${username}" deleted successfully. Click Refresh to update the list.`);
-      // Don't auto-refresh due to server issues - let user manually refresh
-    } else {
+    if (!response.ok) {
       console.error('Failed to delete user:', response.status, data);
       showError(data.error || `Failed to delete user (${response.status})`);
+      return;
     }
+
+    usersCache = usersCache.filter((u) => u.username !== targetUsername);
+    displayUsers(usersCache);
+    showSuccess(`User "${targetUsername}" deleted successfully.`);
   } catch (error) {
     console.error('Error deleting user:', error);
     showError('Failed to delete user. Please try again.');
   }
-};
+}
 
 function showSuccess(message) {
   const el = document.getElementById('success-message');
@@ -175,11 +176,21 @@ function showError(message) {
   document.getElementById('success-message').classList.remove('show');
 }
 
+function authHeaders(extra = {}) {
+  return {
+    ...extra,
+    'Authorization': `Bearer ${token}`,
+  };
+}
+
+function clearAuth() {
+  AUTH_KEYS.forEach((key) => localStorage.removeItem(key));
+}
+
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
 
-// Initial load
 loadUsers();

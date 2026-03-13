@@ -1,139 +1,88 @@
-/* Responsive Design */
+/* Responsive Adjustments */
 
-/* Tablet & Mobile (<= 768px) */
+@media (max-width: 900px) {
+  :root {
+    --sidebar-width: 280px;
+    --topnav-height: 66px;
+  }
+
+  #messages {
+    padding: 1.4rem 0.8rem 1.8rem;
+  }
+
+  .message {
+    max-width: 92%;
+  }
+}
+
 @media (max-width: 768px) {
   #app {
-    height: 100dvh; /* Use dynamic viewport height for mobile browsers */
+    height: 100dvh;
   }
 
-  /* Sidebar becomes an overlay drawer */
+  #top-nav {
+    padding: 0 0.8rem;
+  }
+
+  .logo {
+    font-size: 1.14rem;
+  }
+
   #sidebar {
     position: fixed;
-    height: calc(100dvh - var(--topnav-height));
     top: var(--topnav-height);
     left: 0;
-    z-index: 150;
-    width: 280px;
-    box-shadow: var(--shadow-xl);
-    border-right: none;
-    background: rgba(9, 9, 11, 0.85); /* Glassy background for overlay */
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    height: calc(100dvh - var(--topnav-height));
+    box-shadow: 0 20px 48px rgba(31, 42, 48, 0.2);
+    background: rgba(255, 253, 247, 0.95);
   }
 
-  #sidebar.sidebar-hidden {
-    transform: translateX(-100%);
-    pointer-events: none;
-  }
-
-  /* Overlay for sidebar when open */
   #sidebar:not(.sidebar-hidden)::before {
     content: '';
     position: fixed;
     inset: 0;
-    left: 280px;
-    width: 100vw;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
+    left: var(--sidebar-width);
+    background: rgba(31, 42, 48, 0.2);
     z-index: -1;
-    cursor: pointer;
   }
 
-  /* Navigation adjustments */
-  #top-nav {
-    padding: 0 1rem;
-    height: 60px;
+  #input-wrapper {
+    padding: 0.7rem 0.7rem 0.9rem;
   }
-  
-  .logo {
-    font-size: 1.1rem;
+
+  #user-input {
+    font-size: 16px;
   }
-  
+
+  .modal-content {
+    width: 94vw;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 520px) {
+  :root {
+    --topnav-height: 60px;
+  }
+
+  .nav-right {
+    gap: 0.45rem;
+  }
+
   .nav-btn {
     width: 36px;
     height: 36px;
   }
 
-  /* Chat area adjustments */
   #messages {
-    padding: 1.5rem 1rem;
-    gap: 1.5rem;
+    padding: 1rem 0.55rem 1.2rem;
+    gap: 0.95rem;
   }
 
   .message {
-    max-width: 90%;
-    font-size: 0.95rem;
-    padding: 0.875rem 1rem;
-  }
-
-  #input-wrapper {
-    padding: 1rem;
-  }
-  
-  .input-container {
-    gap: 0.5rem;
-    padding: 0.5rem;
-  }
-
-  #user-input {
-    font-size: 16px; /* Prevents auto-zoom on iOS */
-    padding: 0.625rem 0.5rem;
-  }
-}
-
-/* Mobile (<= 480px) */
-@media (max-width: 480px) {
-  :root {
-    --topnav-height: 56px;
-  }
-
-  #messages {
-    padding: 1rem 0.75rem;
-    gap: 1rem;
-  }
-
-  .message {
-    font-size: 0.9rem;
-    padding: 0.75rem;
-    border-radius: var(--radius-lg);
-  }
-
-  .message.user {
-    border-bottom-right-radius: 2px;
-  }
-
-  .message.bot {
-    border-bottom-left-radius: 2px;
-  }
-  
-  /* Compact modal on mobile */
-  .modal-content {
-    width: 95%;
-    max-height: 90dvh;
-    padding: 0;
-    border-radius: var(--radius-lg);
-  }
-  
-  .modal-header {
-    padding: 1rem;
-  }
-  
-  .modal-body {
-    padding: 1rem;
-  }
-  
-  .modal-footer {
-    padding: 0.75rem 1rem;
-    flex-direction: column-reverse; /* Stack buttons */
-  }
-  
-  .btn-primary, .btn-secondary {
-    width: 100%;
-    justify-content: center;
-    text-align: center;
-  }
-  
-  #main-content {
-    background: var(--bg-dark); /* Ensure solid background */
+    max-width: 96%;
+    font-size: 0.92rem;
+    line-height: 1.58;
+    padding: 0.82rem 0.86rem;
   }
 }
