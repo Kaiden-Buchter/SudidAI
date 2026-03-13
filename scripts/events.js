@@ -26,6 +26,8 @@ export function setupChatForm() {
   const userInput = document.getElementById('user-input');
   const sendButton = document.getElementById('send');
 
+  if (!chatForm || !userInput || !sendButton) return;
+
   // Handle Enter key submission
   userInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -44,6 +46,9 @@ export function setupChatForm() {
   document.addEventListener('activeChatChanged', () => {
     updateSendButtonState(sendButton, userInput);
   });
+
+  // Initialize state on first render.
+  updateSendButtonState(sendButton, userInput);
 }
 
 /**
@@ -59,6 +64,9 @@ export function setupNewChatButton() {
  */
 async function handleChatSubmission(userInput, sendButton) {
   if (!canSendMessage()) return;
+
+  const currentChatId = activeChatId;
+  if (!currentChatId || !chatHistories[currentChatId]) return;
 
   const userMessage = userInput.value.trim();
   if (!userMessage) return;
@@ -77,7 +85,7 @@ async function handleChatSubmission(userInput, sendButton) {
   localStorage.setItem('chat_draft', '');
 
   // Send request to API
-  await sendChatRequest(activeChatId, userMessage, thinkingId);
+  await sendChatRequest(currentChatId, userMessage, thinkingId);
 
   // Reset state
   isWaitingForResponse = false;
@@ -88,7 +96,7 @@ async function handleChatSubmission(userInput, sendButton) {
  * Check if message can be sent
  */
 function canSendMessage() {
-  return activeChatId && !isWaitingForResponse;
+  return Boolean(activeChatId && chatHistories[activeChatId] && !isWaitingForResponse);
 }
 
 /**
@@ -151,6 +159,11 @@ function createRequestBody(chatId, userMessage) {
 function handleChatResponse(chatId, data, thinkingId) {
   const botMessage = data.choices?.[0]?.message?.content || 
     'Sorry, I could not process your request.';
+
+  if (!chatHistories[chatId]) {
+    handleChatError(thinkingId);
+    return;
+  }
 
   // Save to history
   chatHistories[chatId].messages.push({ 

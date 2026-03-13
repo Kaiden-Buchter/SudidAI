@@ -52,8 +52,14 @@ export function saveChatsToLocalStorage() {
  * Set active chat ID
  */
 export function setActiveChatId(chatId) {
-  activeChatId = chatId;
-  localStorage.setItem(STORAGE_KEYS.ACTIVE_CHAT, activeChatId);
+  activeChatId = chatId || null;
+
+  if (activeChatId) {
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_CHAT, activeChatId);
+  } else {
+    localStorage.removeItem(STORAGE_KEYS.ACTIVE_CHAT);
+  }
+
   document.dispatchEvent(new Event('activeChatChanged'));
 }
 
@@ -61,7 +67,7 @@ export function setActiveChatId(chatId) {
  * Add message to chat
  */
 export function addMessage(role, content, skipHistory = false, messageId = null) {
-  if (!activeChatId) return;
+  if (!activeChatId || !chatHistories[activeChatId]) return;
 
   const messagesDiv = document.getElementById('messages');
   const messageWrapper = createMessageElement(role, content, messageId);
@@ -303,7 +309,17 @@ function highlightCodeBlocks(wrapper) {
  * Switch to different chat
  */
 export function switchChat(chatId) {
-  if (activeChatId === chatId) return;
+  if (!chatId || !chatHistories[chatId]) {
+    setActiveChatId(null);
+    document.getElementById('messages').innerHTML = '';
+    updateActiveChatUI('');
+    return;
+  }
+
+  if (activeChatId === chatId) {
+    updateActiveChatUI(chatId);
+    return;
+  }
 
   setActiveChatId(chatId);
   
@@ -325,14 +341,19 @@ export function switchChat(chatId) {
  * Update active chat UI
  */
 function updateActiveChatUI(chatId) {
-  const escapedId = CSS.escape(chatId);
-
   document.querySelectorAll('.chat-item').forEach(item => {
     item.classList.remove('active');
+    item.removeAttribute('aria-current');
   });
+
+  if (!chatId) return;
+
+  const escapedId = CSS.escape(chatId);
 
   const activeItem = document.querySelector(`[data-chat-id="${escapedId}"]`);
   activeItem?.classList.add('active');
+  activeItem?.setAttribute('aria-current', 'true');
+  activeItem?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 }
 
 /**
@@ -443,6 +464,7 @@ function createChatItem(chatId, chatName) {
     innerHTML: `
       <div class="chat-item-content">
         <span class="chat-text">${escapeHTML(chatName)}</span>
+        <span class="chat-current-tag" aria-hidden="true">Open</span>
       </div>
       <button class="ellipsis-btn">
         <i class="fa-solid fa-ellipsis"></i>
@@ -642,6 +664,7 @@ function showDeleteConfirmModal(chatId) {
       if (remainingChats.length > 0) {
         switchChat(remainingChats[0]);
       } else {
+        setActiveChatId(null);
         document.getElementById('messages').innerHTML = '';
       }
     }
