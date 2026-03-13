@@ -6,6 +6,11 @@ import {
   setupAutoSave, 
   detectTouchDevice 
 } from './ui.js';
+
+// Apply stored theme before first paint (module runs deferred at end of body)
+if (localStorage.getItem('dark_mode') === 'true') {
+  document.documentElement.classList.add('dark');
+}
 import { 
   setupChatForm, 
   setupNewChatButton, 

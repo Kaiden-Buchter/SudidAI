@@ -101,3 +101,12 @@
 .error-message.show {
   display: block;
 }
+
+/* Dark mode */
+html.dark #login-box {
+  background: linear-gradient(180deg, rgba(20, 30, 42, 0.98), rgba(16, 26, 38, 0.96));
+}
+
+html.dark .form-group input {
+  background: rgba(22, 32, 44, 0.92);
+}

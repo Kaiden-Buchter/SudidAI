@@ -98,6 +98,130 @@ body::after {
   color: var(--accent);
 }
 
+/* ── Dark Mode ─────────────────────────────────────────────── */
+
+html.dark {
+  --bg-main: #111820;
+  --bg-soft: #161e26;
+  --surface: rgba(26, 35, 44, 0.92);
+  --surface-strong: #1e2a35;
+  --surface-accent: #1a2832;
+  --text-primary: #dce8ed;
+  --text-secondary: #8fa7b2;
+  --text-muted: #5d7480;
+  --border: rgba(148, 180, 196, 0.14);
+  --border-strong: rgba(148, 180, 196, 0.26);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.36);
+  --shadow: 0 16px 40px rgba(0, 0, 0, 0.48);
+  --shadow-lg: 0 26px 60px rgba(0, 0, 0, 0.60);
+}
+
+html.dark body {
+  background: linear-gradient(135deg, #111820 0%, #14202a 48%, #12201e 100%);
+}
+
+html.dark body::before {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(231, 111, 81, 0.08), transparent 38%),
+    radial-gradient(circle at 84% 16%, rgba(15, 118, 110, 0.12), transparent 34%),
+    radial-gradient(circle at 70% 90%, rgba(217, 119, 6, 0.06), transparent 40%);
+}
+
+html.dark body::after {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  opacity: 0.5;
+}
+
+/* Navigation */
+html.dark #top-nav {
+  background: linear-gradient(180deg, rgba(18, 27, 36, 0.97), rgba(16, 25, 34, 0.90));
+}
+
+html.dark .nav-btn {
+  background: rgba(22, 32, 44, 0.82);
+}
+
+html.dark .nav-btn:hover {
+  background: rgba(30, 44, 58, 0.96);
+}
+
+/* Sidebar */
+html.dark #sidebar {
+  background: linear-gradient(180deg, rgba(18, 28, 38, 0.92) 0%, rgba(14, 22, 30, 0.86) 100%);
+}
+
+html.dark .search-input {
+  background: rgba(22, 32, 44, 0.82);
+}
+
+html.dark #chat-list li:hover {
+  background: rgba(24, 36, 48, 0.84);
+}
+
+/* Modals */
+html.dark .modal-content {
+  background: linear-gradient(180deg, rgba(20, 30, 42, 0.99), rgba(16, 26, 38, 0.98));
+}
+
+html.dark .close-btn {
+  background: rgba(22, 32, 44, 0.88);
+}
+
+html.dark .modal-content input[type='text'],
+html.dark .modal-content input[type='password'] {
+  background: rgba(22, 32, 44, 0.92);
+}
+
+html.dark .setting-option {
+  background: rgba(22, 32, 44, 0.72);
+}
+
+/* Messages */
+html.dark .message.bot {
+  background: linear-gradient(180deg, rgba(24, 36, 48, 0.94), rgba(20, 32, 44, 0.94));
+  border-color: rgba(148, 180, 196, 0.18);
+}
+
+/* Input area */
+html.dark #input-wrapper {
+  background: linear-gradient(180deg, rgba(17, 24, 32, 0.10), rgba(15, 22, 30, 0.88) 40%, rgba(14, 20, 28, 0.97));
+  border-top-color: rgba(148, 180, 196, 0.10);
+}
+
+html.dark .input-container {
+  background: rgba(22, 32, 44, 0.92);
+}
+
+/* Admin panel */
+html.dark #admin-header {
+  background: rgba(20, 30, 42, 0.90);
+}
+
+html.dark .admin-section {
+  background: linear-gradient(180deg, rgba(20, 30, 42, 0.92), rgba(16, 26, 38, 0.88));
+}
+
+html.dark .form-input {
+  background: rgba(22, 32, 44, 0.92);
+}
+
+html.dark .users-table thead {
+  background: rgba(15, 118, 110, 0.12);
+}
+
+html.dark .users-table td {
+  background: rgba(20, 30, 42, 0.72);
+}
+
+html.dark .user-info,
+html.dark .logout-btn,
+html.dark .chat-btn,
+html.dark .refresh-btn {
+  background: rgba(22, 32, 44, 0.84);
+}
+
 ::selection {
   background: var(--accent-soft);
   color: var(--text-primary);

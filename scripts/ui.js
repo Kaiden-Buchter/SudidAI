@@ -111,6 +111,16 @@ export function setupSettingsModal() {
       closeModal(settingsModal);
     }
   });
+
+  // Dark mode toggle
+  const darkToggle = document.getElementById('dark-mode-toggle');
+  if (darkToggle) {
+    darkToggle.checked = localStorage.getItem('dark_mode') === 'true';
+    darkToggle.addEventListener('change', () => {
+      document.documentElement.classList.toggle('dark', darkToggle.checked);
+      localStorage.setItem('dark_mode', String(darkToggle.checked));
+    });
+  }
 }
 
 /**

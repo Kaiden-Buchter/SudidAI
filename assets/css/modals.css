@@ -161,6 +161,50 @@
   border-radius: 12px;
   padding: 0.8rem 0.9rem;
   background: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  user-select: none;
+}
+
+.setting-option span {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+/* Hide native checkbox, replace with pill toggle */
+.setting-option input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  border: 1.5px solid var(--border-strong);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.setting-option input[type='checkbox']::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.setting-option input[type='checkbox']:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.setting-option input[type='checkbox']:checked::after {
+  transform: translateX(18px);
 }
 
 #password-modal .modal-content {
