@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(29, 38, 43, 0.44);
+  background: rgba(15, 24, 31, 0.46);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   opacity: 0;
@@ -23,10 +23,10 @@
 .modal-content {
   width: min(560px, 92vw);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(255, 251, 242, 0.96));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(253, 248, 239, 0.95));
   border: 1px solid var(--border);
   box-shadow: var(--shadow-lg);
-  transform: translateY(8px) scale(0.98);
+  transform: translateY(10px) scale(0.98);
   transition: transform var(--transition);
   overflow: hidden;
   padding: 1.25rem;
@@ -49,7 +49,7 @@
 .modal-content h2 {
   margin: 0;
   font-family: 'Sora', 'Space Grotesk', sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.18rem;
   color: var(--text-primary);
 }
 
@@ -58,7 +58,7 @@
   height: 34px;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.84);
   color: var(--text-secondary);
   cursor: pointer;
 }
@@ -71,7 +71,7 @@
 .modal-body {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.8rem;
 }
 
 .modal p {
@@ -89,16 +89,15 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 0.72rem 0.84rem;
-  font: inherit;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.9);
   color: var(--text-primary);
   outline: none;
 }
 
 .modal-content input[type='text']:focus,
 .modal-content input[type='password']:focus {
-  border-color: rgba(15, 118, 110, 0.45);
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  border-color: rgba(15, 120, 106, 0.45);
+  box-shadow: 0 0 0 3px rgba(15, 120, 106, 0.12);
 }
 
 .modal-buttons,
@@ -112,9 +111,8 @@
 .modal-btn,
 #password-form button {
   border-radius: 10px;
-  padding: 0.62rem 1rem;
+  padding: 0.64rem 1rem;
   border: 1px solid transparent;
-  font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
@@ -131,7 +129,7 @@
 }
 
 .cancel-btn {
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.8);
   color: var(--text-secondary);
   border-color: var(--border);
 }
@@ -143,13 +141,13 @@
 
 .modal-buttons .delete-btn,
 .modal-footer .delete-btn {
-  background: #b9432d;
+  background: #b8432c;
   color: #fff5ef;
 }
 
 .modal-buttons .delete-btn:hover,
 .modal-footer .delete-btn:hover {
-  background: #9f3a28;
+  background: #a13a27;
 }
 
 .setting-option {
@@ -159,8 +157,8 @@
   gap: 1rem;
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 0.8rem 0.9rem;
-  background: rgba(255, 255, 255, 0.75);
+  padding: 0.84rem 0.92rem;
+  background: rgba(255, 255, 255, 0.8);
   cursor: pointer;
   user-select: none;
 }
@@ -170,7 +168,6 @@
   color: var(--text-primary);
 }
 
-/* Hide native checkbox, replace with pill toggle */
 .setting-option input[type='checkbox'] {
   appearance: none;
   -webkit-appearance: none;
@@ -215,4 +212,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
+}
+
+html.dark .modal-content,
+html.dark .close-btn,
+html.dark .setting-option,
+html.dark .modal-content input[type='text'],
+html.dark .modal-content input[type='password'] {
+  background: rgba(22, 34, 43, 0.94);
 }

@@ -12,10 +12,10 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.74) 0%, rgba(255, 253, 247, 0.6) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(253, 249, 240, 0.54) 100%);
   border-right: 1px solid var(--border);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
   transition: transform var(--transition), width var(--transition);
   z-index: 40;
 }
@@ -36,37 +36,36 @@
 }
 
 .sidebar-header {
-  padding: 1.25rem 1rem 0.8rem;
+  padding: 1.25rem 1rem 0.85rem;
 }
 
 .sidebar-header h2 {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.18em;
   color: var(--text-muted);
 }
 
 .search-input {
-  margin: 0.25rem 1rem 0.75rem;
+  margin: 0.12rem 1rem 0.8rem;
   width: calc(100% - 2rem);
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 12px;
   color: var(--text-primary);
-  padding: 0.65rem 0.75rem;
-  font-family: inherit;
+  padding: 0.68rem 0.78rem;
   outline: none;
 }
 
 .search-input:focus {
-  border-color: rgba(15, 118, 110, 0.45);
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  border-color: rgba(15, 120, 106, 0.45);
+  box-shadow: 0 0 0 4px rgba(15, 120, 106, 0.12);
 }
 
 #chat-list {
   list-style: none;
   margin: 0;
-  padding: 0.5rem;
+  padding: 0.52rem;
   overflow-y: auto;
   min-height: 0;
   display: flex;
@@ -76,45 +75,46 @@
 
 #chat-list li {
   position: relative;
-  padding: 0.75rem 0.75rem;
-  border-radius: 12px;
+  padding: 0.75rem 0.74rem;
+  border-radius: 14px;
   border: 1px solid transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.6rem;
   color: var(--text-secondary);
-  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
 #chat-list li:hover {
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.78);
   border-color: var(--border);
   color: var(--text-primary);
+  transform: translateX(2px);
 }
 
 #chat-list li.active {
-  background: linear-gradient(135deg, rgba(15, 118, 110, 0.2), rgba(231, 111, 81, 0.16));
-  border-color: rgba(15, 118, 110, 0.42);
+  background: linear-gradient(130deg, rgba(15, 120, 106, 0.2), rgba(203, 96, 48, 0.14));
+  border-color: rgba(15, 120, 106, 0.4);
   color: var(--text-primary);
-  box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.1), var(--shadow-sm);
+  box-shadow: inset 0 0 0 1px rgba(15, 120, 106, 0.12), var(--shadow-sm);
 }
 
 #chat-list li.active::before {
   content: '';
   position: absolute;
-  left: 0.28rem;
-  top: 0.46rem;
-  bottom: 0.46rem;
+  left: 0.3rem;
+  top: 0.42rem;
+  bottom: 0.42rem;
   width: 4px;
   border-radius: 999px;
-  background: linear-gradient(180deg, var(--accent), #0a5a54);
+  background: linear-gradient(180deg, var(--accent), var(--accent-hover));
 }
 
 .chat-item-content {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.48rem;
   min-width: 0;
   flex: 1;
 }
@@ -134,8 +134,8 @@
 
 .chat-current-tag {
   display: none;
-  border: 1px solid rgba(15, 118, 110, 0.34);
-  background: rgba(15, 118, 110, 0.14);
+  border: 1px solid rgba(15, 120, 106, 0.34);
+  background: rgba(15, 120, 106, 0.14);
   color: var(--accent);
   border-radius: 999px;
   padding: 0.08rem 0.42rem;
@@ -160,19 +160,20 @@
   transition: opacity var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
 }
 
-#chat-list li:hover .ellipsis-btn {
+#chat-list li:hover .ellipsis-btn,
+#chat-list li.active .ellipsis-btn,
+.touch-device .ellipsis-btn {
   opacity: 1;
 }
 
 #chat-list li.active .ellipsis-btn {
-  opacity: 1;
-  border-color: rgba(15, 118, 110, 0.26);
+  border-color: rgba(15, 120, 106, 0.25);
   background: rgba(255, 255, 255, 0.6);
   color: var(--text-primary);
 }
 
 .ellipsis-btn:hover {
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.82);
   border-color: var(--border);
   color: var(--text-primary);
 }
@@ -180,12 +181,12 @@
 .date-separator {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.6rem;
   margin: 1.2rem 0 0.8rem;
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
 }
 
 .date-separator hr {
@@ -196,7 +197,7 @@
 }
 
 .date-separator span {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.7);
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   padding: 0.2rem 0.5rem;
@@ -204,9 +205,9 @@
 
 .menu {
   position: absolute;
-  min-width: 170px;
-  padding: 0.4rem;
-  border-radius: 12px;
+  min-width: 172px;
+  padding: 0.38rem;
+  border-radius: 13px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.96);
   box-shadow: var(--shadow);
@@ -221,14 +222,13 @@
   background: transparent;
   color: var(--text-secondary);
   border-radius: 9px;
-  padding: 0.55rem 0.65rem;
-  font: inherit;
+  padding: 0.56rem 0.66rem;
   font-size: 0.9rem;
   text-align: left;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.56rem;
 }
 
 .menu-item:hover {
@@ -238,10 +238,21 @@
 }
 
 .menu-item.delete-btn {
-  color: #a13f2c;
+  color: #a54428;
 }
 
 .menu-item.delete-btn:hover {
-  background: rgba(169, 63, 44, 0.08);
-  border-color: rgba(169, 63, 44, 0.3);
+  background: rgba(165, 68, 40, 0.1);
+  border-color: rgba(165, 68, 40, 0.3);
+}
+
+html.dark #sidebar {
+  background: linear-gradient(180deg, rgba(18, 28, 36, 0.94) 0%, rgba(15, 23, 31, 0.88) 100%);
+}
+
+html.dark .search-input,
+html.dark .date-separator span,
+html.dark .menu,
+html.dark #chat-list li.active .ellipsis-btn {
+  background: rgba(22, 34, 43, 0.9);
 }

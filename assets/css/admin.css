@@ -6,7 +6,7 @@ body {
 }
 
 #admin-container {
-  width: min(1120px, 96%);
+  width: min(1140px, 96%);
   margin: 1.2rem auto 2rem;
 }
 
@@ -15,17 +15,18 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.4rem;
-  padding: 1rem 1.1rem;
+  margin-bottom: 1.35rem;
+  padding: 1rem 1.15rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.8);
   box-shadow: var(--shadow-sm);
 }
 
 #admin-header h1 {
   font-family: 'Sora', 'Space Grotesk', sans-serif;
   font-size: 1.4rem;
+  letter-spacing: -0.02em;
 }
 
 .header-actions {
@@ -37,10 +38,10 @@ body {
 
 .user-info {
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.84);
   color: var(--text-secondary);
   border-radius: 999px;
-  padding: 0.36rem 0.68rem;
+  padding: 0.38rem 0.7rem;
   font-size: 0.84rem;
 }
 
@@ -48,16 +49,16 @@ body {
 .chat-btn,
 .refresh-btn {
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.82);
   color: var(--text-secondary);
   border-radius: 10px;
-  padding: 0.54rem 0.76rem;
-  font: inherit;
+  padding: 0.56rem 0.78rem;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 0.36rem;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
 }
 
 .logout-btn:hover,
@@ -66,6 +67,7 @@ body {
   background: #fff;
   border-color: var(--border-strong);
   color: var(--text-primary);
+  transform: translateY(-1px);
 }
 
 .logout-btn {
@@ -77,13 +79,13 @@ body {
   border-radius: var(--radius-lg);
   padding: 1.15rem;
   margin-bottom: 1rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 251, 242, 0.86));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(251, 245, 234, 0.87));
   box-shadow: var(--shadow-sm);
 }
 
 .admin-section h2 {
   font-family: 'Sora', 'Space Grotesk', sans-serif;
-  font-size: 1.08rem;
+  font-size: 1.1rem;
   margin-bottom: 0.95rem;
   color: var(--text-primary);
 }
@@ -97,16 +99,15 @@ body {
 .form-input {
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.84);
   color: var(--text-primary);
-  padding: 0.66rem 0.76rem;
-  font: inherit;
+  padding: 0.68rem 0.77rem;
   outline: none;
 }
 
 .form-input:focus {
-  border-color: rgba(15, 118, 110, 0.45);
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  border-color: rgba(15, 120, 106, 0.45);
+  box-shadow: 0 0 0 3px rgba(15, 120, 106, 0.12);
 }
 
 .add-btn {
@@ -114,10 +115,10 @@ body {
   border-radius: 12px;
   background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: #f5fffc;
-  font: inherit;
   font-weight: 700;
-  padding: 0.66rem 1rem;
+  padding: 0.68rem 1rem;
   cursor: pointer;
+  box-shadow: 0 10px 20px rgba(15, 120, 106, 0.22);
 }
 
 .users-table {
@@ -128,25 +129,25 @@ body {
 }
 
 .users-table thead {
-  background: rgba(15, 118, 110, 0.08);
+  background: rgba(15, 120, 106, 0.08);
 }
 
 .users-table th,
 .users-table td {
   text-align: left;
-  border-bottom: 1px solid rgba(31, 42, 48, 0.1);
-  padding: 0.72rem 0.8rem;
+  border-bottom: 1px solid rgba(24, 34, 41, 0.1);
+  padding: 0.74rem 0.82rem;
 }
 
 .users-table th {
   font-size: 0.74rem;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.09em;
   color: var(--text-secondary);
 }
 
 .users-table td {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.64);
 }
 
 .role-badge {
@@ -162,24 +163,23 @@ body {
 }
 
 .role-badge.admin {
-  border: 1px solid rgba(15, 118, 110, 0.4);
+  border: 1px solid rgba(15, 120, 106, 0.4);
   color: var(--accent);
-  background: rgba(15, 118, 110, 0.12);
+  background: rgba(15, 120, 106, 0.14);
 }
 
 .role-badge.user {
-  border: 1px solid rgba(67, 82, 91, 0.35);
+  border: 1px solid rgba(63, 80, 89, 0.34);
   color: var(--text-secondary);
-  background: rgba(67, 82, 91, 0.1);
+  background: rgba(63, 80, 89, 0.1);
 }
 
 .delete-user-btn {
-  border: 1px solid rgba(169, 63, 44, 0.4);
-  background: rgba(169, 63, 44, 0.08);
-  color: #943926;
+  border: 1px solid rgba(161, 63, 44, 0.4);
+  background: rgba(161, 63, 44, 0.1);
+  color: #963a27;
   border-radius: 8px;
-  padding: 0.32rem 0.54rem;
-  font: inherit;
+  padding: 0.34rem 0.56rem;
   font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
@@ -193,27 +193,38 @@ body {
 .success-message,
 .error-message-admin {
   display: none;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.82rem;
   border-radius: 10px;
-  padding: 0.62rem 0.78rem;
+  padding: 0.64rem 0.8rem;
   font-size: 0.9rem;
 }
 
 .success-message {
-  border: 1px solid rgba(15, 118, 110, 0.35);
-  background: rgba(15, 118, 110, 0.1);
+  border: 1px solid rgba(15, 120, 106, 0.36);
+  background: rgba(15, 120, 106, 0.11);
   color: var(--accent);
 }
 
 .error-message-admin {
-  border: 1px solid rgba(169, 63, 44, 0.35);
-  background: rgba(169, 63, 44, 0.08);
-  color: #943926;
+  border: 1px solid rgba(161, 63, 44, 0.36);
+  background: rgba(161, 63, 44, 0.1);
+  color: #963a27;
 }
 
 .success-message.show,
 .error-message-admin.show {
   display: block;
+}
+
+html.dark #admin-header,
+html.dark .admin-section,
+html.dark .user-info,
+html.dark .logout-btn,
+html.dark .chat-btn,
+html.dark .refresh-btn,
+html.dark .form-input,
+html.dark .users-table td {
+  background: rgba(22, 34, 43, 0.92);
 }
 
 @media (max-width: 900px) {

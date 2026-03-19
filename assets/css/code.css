@@ -2,14 +2,14 @@
 
 pre {
   margin: 1rem 0;
-  padding: 2.1rem 1rem 1rem;
+  padding: 2.22rem 1rem 1rem;
   border-radius: 14px;
-  border: 1px solid rgba(30, 64, 175, 0.2);
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-  color: #e6edf3;
+  border: 1px solid rgba(103, 142, 188, 0.28);
+  background: linear-gradient(180deg, #0e1a2b 0%, #19273b 100%);
+  color: #e8eef6;
   overflow: hidden;
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 20px rgba(15, 23, 42, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 12px 24px rgba(12, 20, 34, 0.36);
 }
 
 pre[class*='language-'] {
@@ -24,7 +24,7 @@ pre[class*='language-']::before {
   left: 0;
   right: 0;
   height: 2rem;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0));
+  background: linear-gradient(180deg, rgba(12, 20, 34, 0.7), rgba(12, 20, 34, 0));
   pointer-events: none;
 }
 
@@ -32,25 +32,23 @@ pre code {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 0.86rem;
   line-height: 1.58;
-  color: #e6edf3;
+  color: #e8eef6;
   white-space: pre-wrap !important;
   overflow-wrap: anywhere !important;
   word-break: break-word !important;
 }
 
-
-
 pre code::selection,
 pre::selection,
 pre *::selection {
-  background: rgba(96, 165, 250, 0.35);
+  background: rgba(93, 157, 255, 0.35);
   color: #f8fafc;
 }
 
 pre code::-moz-selection,
 pre::-moz-selection,
 pre *::-moz-selection {
-  background: rgba(96, 165, 250, 0.35);
+  background: rgba(93, 157, 255, 0.35);
   color: #f8fafc;
 }
 
@@ -59,12 +57,11 @@ pre::after {
   position: absolute;
   top: 0.5rem;
   left: 0.75rem;
-  right: auto;
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.26);
-  background: rgba(15, 23, 42, 0.7);
-  color: #cbd5e1;
-  padding: 0.14rem 0.58rem;
+  border: 1px solid rgba(151, 170, 201, 0.3);
+  background: rgba(11, 18, 30, 0.76);
+  color: #d2deee;
+  padding: 0.15rem 0.58rem;
   font-size: 0.65rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -74,9 +71,9 @@ pre::after {
   position: absolute;
   top: 0.46rem;
   right: 0.75rem;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: rgba(15, 23, 42, 0.6);
-  color: #cbd5e1;
+  border: 1px solid rgba(151, 170, 201, 0.24);
+  background: rgba(11, 18, 30, 0.7);
+  color: #d2deee;
   border-radius: 8px;
   width: 26px;
   height: 26px;
@@ -92,10 +89,7 @@ pre::after {
   border-color: rgba(248, 250, 252, 0.45);
 }
 
-pre.line-numbers .line-numbers-rows {
-  display: none !important;
-}
-
+pre.line-numbers .line-numbers-rows,
 pre.line-numbers .line-numbers-rows > span:before {
   display: none !important;
 }

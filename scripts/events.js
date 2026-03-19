@@ -82,6 +82,7 @@ async function handleChatSubmission(userInput, sendButton) {
   
   // Clear input and save state
   userInput.value = '';
+  userInput.style.height = 'auto';
   localStorage.setItem('chat_draft', '');
 
   // Send request to API
